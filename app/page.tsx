@@ -60,23 +60,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6">Get in Touch</h2>
-          <p className="mb-6 text-gray-700">
-            Reach out to us today to learn more about how we can help you
-            achieve your real estate goals.
-          </p>
-          <a
-            href="mailto:kade@firstfruitrealestate.com"
-            className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700"
-          >
-            Contact Us
-          </a>
-        </div>
-      </section>
     </div>
   );
 }
