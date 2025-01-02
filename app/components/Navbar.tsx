@@ -5,7 +5,7 @@ import { SocialMediaBar } from './SocialMediaBar';
 
 export function Navbar() {
   return (
-    <nav className="bg-forest border-b sticky top-0 z-10">
+    <nav className="bg-forest sticky top-0 z-10">
       <div className="container mx-auto flex justify-between items-center py-4">
         {/* Logo */}
         <div className="text-center">
