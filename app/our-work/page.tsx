@@ -2,7 +2,7 @@
 
 export default function OurWorkPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-forest text-center">
+    <div className="min-h-screen flex items-center justify-center text-center">
       <div className="max-w-lg p-8 bg-white rounded-lg shadow-lg">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">Our Work</h1>
         <p className="text-lg text-gray-600 mb-6">

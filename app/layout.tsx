@@ -15,7 +15,7 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
         <meta name="description" content="Firstfruit Real Estate - Your trusted real estate partner" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className="min-h-screen flex flex-col bg-mint text-slate">
+      <body className="min-h-screen flex flex-col bg-navy">
         <header>
           <Navbar />
         </header>

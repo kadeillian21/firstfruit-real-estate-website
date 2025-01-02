@@ -1,13 +1,9 @@
 import Link from "next/link";
 import { FaFacebookF, FaInstagram, FaLinkedin } from "react-icons/fa";
 
-interface SocialMediaBarProps {
-  textColor: string;
-}
-
-export function SocialMediaBar({ textColor }: SocialMediaBarProps) {
+export function SocialMediaBar() {
   return (
-    <div className={`flex space-x-4 ${textColor}`}>
+    <div className='flex space-x-4 text-white'>
       <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer">
         <FaFacebookF className="hover:opacity-80 transition-opacity" />
       </Link>

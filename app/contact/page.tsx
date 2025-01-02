@@ -43,7 +43,7 @@ export default function ContactPage() {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center bg-forest flex items-center justify-center"
+      className="min-h-screen bg-cover bg-center flex items-center justify-center"
       style={{ backgroundImage: "url('https://source.unsplash.com/featured/?forest')" }}
     >
       <div className="bg-white bg-opacity-80 p-10 rounded-lg shadow-lg max-w-4xl w-full flex">

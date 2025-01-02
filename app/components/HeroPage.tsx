@@ -2,36 +2,31 @@ import React from "react";
 
 export function HeroPage() {
   return (
-    <section className="relative bg-gray-50">
-      {/* Hero Image */}
-      <div className="absolute inset-0">
-        {/* <Image
-          src="/vercel.svg"
-          alt="Hero Background"
-          className="w-full h-full object-cover"
-          height={1}
-          width={1}
-        /> */}
-        <div className="absolute inset-0 bg-black opacity-30"></div> {/* Overlay */}
-      </div>
-
-      {/* Hero Content */}
-      <div className="relative z-10 container mx-auto flex flex-col items-center text-center py-20 px-4">
-        <h1 className="text-5xl font-bold text-white">
-          Start Your Journey with Firstfruit Real Estate
-        </h1>
-        <p className="text-lg text-gray-200 mt-4">
-          Building a legacy of growth, transformation, and community.
+    <div
+      className="relative bg-cover bg-center h-screen flex items-center justify-center"
+      style={{ backgroundImage: "url('https://source.unsplash.com/featured/?landscape')" }}
+    >
+      <div className="absolute inset-0 bg-navy bg-opacity-50"></div>
+      <div className="relative text-center text-white px-6">
+        <h1 className="text-5xl font-bold mb-4">Welcome to Our World</h1>
+        <p className="text-lg mb-6 max-w-2xl mx-auto">
+          Explore the beauty of endless possibilities and discover what makes us unique.
         </p>
-        <div className="mt-6">
+        <div className="space-x-4">
           <a
-            href="#portfolio"
-            className="px-6 py-3 bg-gold text-black font-semibold rounded-lg shadow-lg hover:bg-yellow-600 transition-all"
+            href="#about"
+            className="bg-indigo-600 text-white py-3 px-6 rounded-md text-lg hover:bg-indigo-700 transition duration-300"
           >
-            View Our Work
+            Learn More
+          </a>
+          <a
+            href="#contact"
+            className="bg-gray-100 text-black py-3 px-6 rounded-md text-lg hover:bg-gray-200 transition duration-300"
+          >
+            Contact Us
           </a>
         </div>
       </div>
-    </section>
+    </div>
   );
 };

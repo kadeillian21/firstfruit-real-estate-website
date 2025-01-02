@@ -9,13 +9,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        forest: '#2E7D32',
-        grass: '#358608',
-        gold: '#FFB300',
-        beige: '#F5F5DC',
-        slate: '#4B5563',
-        rust: '#D84315',
-        mint: '#E8F5E9',
+        navy: '#012030',
+        seaBlue: '#026873',
+        turquoise: '#04BF8A',
+        forest: '#025940',
+        grass: '#03A64A',
       },
     },
   },
