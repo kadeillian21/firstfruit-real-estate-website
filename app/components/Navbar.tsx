@@ -40,6 +40,11 @@ export function Navbar() {
               Contact Us
             </Link>
           </li>
+          <li>
+            <Link href="/brrrr-calculator" className="hover:opacity-80 transition-colors">
+              BRRRR Calculator
+            </Link>
+          </li>
         </ul>
         <SocialMediaBar />
       </div>
