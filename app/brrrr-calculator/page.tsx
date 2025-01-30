@@ -1,7 +1,7 @@
-export default function BRRRRCalculator () {
+export function BRRRRCalculator() {
   return (
-    <div>
+    <>
       BRRRR
-    </div>
+    </>
   )
 }

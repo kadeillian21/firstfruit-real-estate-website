@@ -1,0 +1,358 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("FIRSTFRUIT_REAL_ESTATE_DB")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Property {
+  id               String   @id @default(cuid())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  address          String
+  description      String?
+  status           PropertyStatus @default(ACTIVE)
+
+  // Related entities
+  income           Income?
+  expenses         Expenses?
+  mortgage         Mortgage[]
+  rehabilitation   Rehabilitation?
+  transactionCosts TransactionCosts?
+  reserves         Reserves?
+  sale             Sale?
+  assumptions      MarketAssumptions?
+  returns          Returns?
+  
+  // User relationship (assuming you have user authentication)
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Income {
+  id                String   @id @default(cuid())
+  monthlyRent       Decimal  @db.Decimal(10,2)
+  otherIncome       Decimal  @db.Decimal(10,2)
+  rentGrowthRate    Decimal  @db.Decimal(5,2)
+  
+  // Relations
+  propertyId        String   @unique
+  property          Property @relation(fields: [propertyId], references: [id])
+  growthSchedule    RentGrowthSchedule[]
+}
+
+model RentGrowthSchedule {
+  id          String   @id @default(cuid())
+  startMonth  Int
+  rate        Decimal  @db.Decimal(5,2)
+  
+  // Relations
+  incomeId    String
+  income      Income   @relation(fields: [incomeId], references: [id])
+}
+
+model Expenses {
+  id                  String   @id @default(cuid())
+  vacancy             Decimal  @db.Decimal(5,2)
+  propertyTaxes       Decimal  @db.Decimal(10,2)
+  insurance           Decimal  @db.Decimal(10,2)
+  capEx               Decimal  @db.Decimal(10,2)
+  repairs             Decimal  @db.Decimal(10,2)
+  holdingCosts        Decimal  @db.Decimal(10,2)
+  expenseGrowthRate   Decimal  @db.Decimal(5,2)
+  
+  // Relations
+  propertyId          String   @unique
+  property            Property @relation(fields: [propertyId], references: [id])
+  utilities           Utility[]
+  maintenance         Maintenance?
+  propertyManagement  PropertyManagement?
+  turnover            TenantTurnover?
+  growthSchedule      ExpenseGrowthSchedule[]
+}
+
+model Utility {
+  id        String   @id @default(cuid())
+  type      String
+  monthly   Decimal  @db.Decimal(10,2)
+  paidBy    PaidBy
+
+  // Relations
+  expensesId String
+  expenses   Expenses @relation(fields: [expensesId], references: [id])
+}
+
+model Maintenance {
+  id        String   @id @default(cuid())
+  lawn      Decimal  @db.Decimal(10,2)
+  snow      Decimal  @db.Decimal(10,2)
+  other     Decimal  @db.Decimal(10,2)
+
+  // Relations
+  expensesId String   @unique
+  expenses   Expenses @relation(fields: [expensesId], references: [id])
+}
+
+model PropertyManagement {
+  id                String   @id @default(cuid())
+  percentage        Decimal  @db.Decimal(5,2)
+  monthlyBase       Decimal? @db.Decimal(10,2)
+  leaseRenewalFee   Decimal? @db.Decimal(10,2)
+  setupFee          Decimal? @db.Decimal(10,2)
+
+  // Relations
+  expensesId        String   @unique
+  expenses          Expenses @relation(fields: [expensesId], references: [id])
+}
+
+model TenantTurnover {
+  id        String   @id @default(cuid())
+  cost      Decimal  @db.Decimal(10,2)
+  frequency Int      // months between turnovers
+
+  // Relations
+  expensesId String   @unique
+  expenses   Expenses @relation(fields: [expensesId], references: [id])
+}
+
+model ExpenseGrowthSchedule {
+  id          String   @id @default(cuid())
+  startMonth  Int
+  rate        Decimal  @db.Decimal(5,2)
+  
+  // Relations
+  expensesId  String
+  expenses    Expenses @relation(fields: [expensesId], references: [id])
+}
+
+model Mortgage {
+  id                String        @id @default(cuid())
+  type              MortgageType
+  purchasePrice     Decimal       @db.Decimal(10,2)
+  loanAmount        Decimal       @db.Decimal(10,2)
+  downPayment       Decimal       @db.Decimal(10,2)
+  interestRate      Decimal       @db.Decimal(5,2)
+  term             Int           // months
+  plannedHoldPeriod Int           // months
+  
+  // Relations
+  propertyId       String
+  property         Property       @relation(fields: [propertyId], references: [id])
+  paymentSchedule  MortgagePayment[]
+}
+
+model MortgagePayment {
+  id          String   @id @default(cuid())
+  month       Int
+  principal   Decimal  @db.Decimal(10,2)
+  interest    Decimal  @db.Decimal(10,2)
+  balance     Decimal  @db.Decimal(10,2)
+  
+  // Relations
+  mortgageId  String
+  mortgage    Mortgage @relation(fields: [mortgageId], references: [id])
+}
+
+model TransactionCosts {
+  id                String   @id @default(cuid())
+  
+  // Purchase costs
+  inspection        Decimal  @db.Decimal(10,2)
+  appraisal        Decimal  @db.Decimal(10,2)
+  closingCosts     Decimal  @db.Decimal(10,2)
+  lenderFees       Decimal  @db.Decimal(10,2)
+  pointsBuydown    Decimal  @db.Decimal(10,2)
+  prepaidTaxes     Decimal  @db.Decimal(10,2)
+  prepaidInsurance Decimal  @db.Decimal(10,2)
+  otherPrepaids    Decimal  @db.Decimal(10,2)
+  
+  // Relations
+  propertyId       String   @unique
+  property         Property @relation(fields: [propertyId], references: [id])
+  refinance        Refinance?
+}
+
+model Refinance {
+  id                String   @id @default(cuid())
+  timing           Int      // months after purchase
+  newLoanAmount    Decimal  @db.Decimal(10,2)
+  newInterestRate  Decimal  @db.Decimal(5,2)
+  newTerm          Int      // months
+  closingCosts     Decimal  @db.Decimal(10,2)
+  lenderFees       Decimal  @db.Decimal(10,2)
+  appraisal        Decimal  @db.Decimal(10,2)
+  pointsBuydown    Decimal  @db.Decimal(10,2)
+  prepaidTaxes     Decimal  @db.Decimal(10,2)
+  prepaidInsurance Decimal  @db.Decimal(10,2)
+  
+  // Relations
+  transactionCostsId String   @unique
+  transactionCosts   TransactionCosts @relation(fields: [transactionCostsId], references: [id])
+}
+
+model Rehabilitation {
+  id           String   @id @default(cuid())
+  totalCost    Decimal  @db.Decimal(10,2)
+  timeline     Int      // months
+  contingency  Decimal  @db.Decimal(5,2)
+  arv          Decimal  @db.Decimal(10,2)
+  
+  // Relations
+  propertyId   String   @unique
+  property     Property @relation(fields: [propertyId], references: [id])
+  costSchedule RehabCost[]
+}
+
+model RehabCost {
+  id              String   @id @default(cuid())
+  month           Int
+  amount          Decimal  @db.Decimal(10,2)
+  category        String
+  
+  // Relations
+  rehabilitationId String
+  rehabilitation   Rehabilitation @relation(fields: [rehabilitationId], references: [id])
+}
+
+model Reserves {
+  id                  String   @id @default(cuid())
+  initialReserves     Decimal  @db.Decimal(10,2)
+  monthlyContribution Decimal  @db.Decimal(10,2)
+  minimumRequired     Decimal  @db.Decimal(10,2)
+  type               ReserveType
+
+  // Relations
+  propertyId         String   @unique
+  property           Property @relation(fields: [propertyId], references: [id])
+}
+
+model Sale {
+  id                String   @id @default(cuid())
+  timing           Int      // months after purchase
+  estimatedPrice    Decimal  @db.Decimal(10,2)
+  agentFees         Decimal  @db.Decimal(5,2)
+  repairCosts       Decimal  @db.Decimal(10,2)
+  sellerConcessions Decimal  @db.Decimal(10,2)
+  closingCosts      Decimal  @db.Decimal(10,2)
+  
+  // Relations
+  propertyId        String   @unique
+  property          Property @relation(fields: [propertyId], references: [id])
+}
+
+model MarketAssumptions {
+  id                String   @id @default(cuid())
+  appreciationRate  Decimal  @db.Decimal(5,2)
+  inflationRate     Decimal  @db.Decimal(5,2)
+  marketRentGrowth  Decimal  @db.Decimal(5,2)
+  expenseGrowth     Decimal  @db.Decimal(5,2)
+  
+  // Relations
+  propertyId        String   @unique
+  property          Property @relation(fields: [propertyId], references: [id])
+  appreciationSchedule AppreciationSchedule[]
+  comparableIndex   ComparableIndex?
+}
+
+model AppreciationSchedule {
+  id                    String   @id @default(cuid())
+  startMonth            Int
+  rate                  Decimal  @db.Decimal(5,2)
+  
+  // Relations
+  marketAssumptionsId   String
+  marketAssumptions     MarketAssumptions @relation(fields: [marketAssumptionsId], references: [id])
+}
+
+model ComparableIndex {
+  id                String   @id @default(cuid())
+  type             IndexType
+  expectedReturn    Decimal  @db.Decimal(5,2)
+  
+  // Relations
+  marketAssumptionsId String   @unique
+  marketAssumptions   MarketAssumptions @relation(fields: [marketAssumptionsId], references: [id])
+}
+
+model Returns {
+  id                      String   @id @default(cuid())
+  preRefiCashOnCash      Decimal  @db.Decimal(5,2)
+  preRefiEquityBuilt     Decimal  @db.Decimal(10,2)
+  preRefiROI             Decimal  @db.Decimal(5,2)
+  postRefiCashOnCash     Decimal  @db.Decimal(5,2)
+  postRefiEquityBuilt    Decimal  @db.Decimal(10,2)
+  postRefiROI            Decimal  @db.Decimal(5,2)
+  blendedTimeWeighted    Decimal  @db.Decimal(5,2)
+  blendedMoneyWeighted   Decimal  @db.Decimal(5,2)
+  totalEquityBuilt       Decimal  @db.Decimal(10,2)
+  netOperatingIncome     Decimal  @db.Decimal(10,2)
+  capRate                Decimal  @db.Decimal(5,2)
+  dscr                   Decimal  @db.Decimal(5,2)
+  cashFlowAfterDebt      Decimal  @db.Decimal(10,2)
+  equityMultiple         Decimal  @db.Decimal(5,2)
+  breakEvenMonth         Int
+  irr                    Decimal  @db.Decimal(5,2)
+  
+  // Relations
+  propertyId             String   @unique
+  property               Property @relation(fields: [propertyId], references: [id])
+  monthlyReturns         MonthlyReturn[]
+}
+
+model MonthlyReturn {
+  id              String   @id @default(cuid())
+  month           Int
+  cashFlow        Decimal  @db.Decimal(10,2)
+  equity          Decimal  @db.Decimal(10,2)
+  leverageRatio   Decimal  @db.Decimal(5,2)
+  cashOnCash      Decimal  @db.Decimal(5,2)
+  returnOnEquity  Decimal  @db.Decimal(5,2)
+  totalReturn     Decimal  @db.Decimal(5,2)
+  comparableReturn Decimal  @db.Decimal(5,2)
+  
+  // Relations
+  returnsId       String
+  returns         Returns  @relation(fields: [returnsId], references: [id])
+}
+
+enum PropertyStatus {
+  ACTIVE
+  PENDING
+  SOLD
+  ARCHIVED
+}
+
+enum PaidBy {
+  TENANT
+  LANDLORD
+}
+
+enum MortgageType {
+  CONVENTIONAL
+  HARD_MONEY
+  PORTFOLIO
+  OTHER
+}
+
+enum ReserveType {
+  FIXED
+  MONTHLY
+}
+
+enum IndexType {
+  SP500
+  REAL_ESTATE
+  OTHER
+}
+
+// Assuming you have a User model for authentication
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  properties Property[]
+}
