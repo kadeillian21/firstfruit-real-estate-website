@@ -36,8 +36,8 @@ export function Navbar() {
             </Link>
           </li>
           <li className="relative group">
-            <Link href="/brrrr-calculator" className="hover:opacity-80 transition-colors flex items-center">
-              BRRRR Calculator
+            <Link href="/investment-calculator" className="hover:opacity-80 transition-colors flex items-center">
+              Investment Calculator
             </Link>
           </li>
           <li>

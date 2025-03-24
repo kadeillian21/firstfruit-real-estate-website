@@ -10,81 +10,82 @@ datasource db {
 }
 
 model User {
-  id            String     @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String     @unique
+  email         String    @unique
   emailVerified DateTime?
   image         String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
   // Relations
   scenarios     Scenario[]
+  ComparisonSet ComparisonSet[]
 }
 
 model Scenario {
-  id                  String   @id @default(cuid())
-  name                String
-  description         String?
-  userId              String
-  user                User     @relation(fields: [userId], references: [id])
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   // Buy phase inputs
   purchasePrice       Decimal
-  closingCosts        Decimal  @default(0)
+  closingCosts        Decimal @default(0)
   downPaymentPercent  Decimal
   interestRate        Decimal
-  loanTermYears       Int      @default(30)
-  propertyTaxRate     Decimal  @default(0)
-  insuranceAnnual     Decimal  @default(0)
-  utilityPriceMonthly Decimal  @default(0)
-  
+  loanTermYears       Int     @default(30)
+  propertyTaxRate     Decimal @default(0)
+  insuranceAnnual     Decimal @default(0)
+  utilityPriceMonthly Decimal @default(0)
+
   // Rehab phase inputs
   rehabCost           Decimal
-  rehabTimeMonths     Int      @default(3)
-  holdingCostsMonthly Decimal  @default(0)
-  
+  rehabTimeMonths     Int     @default(3)
+  holdingCostsMonthly Decimal @default(0)
+
   // After Repair Value
-  afterRepairValue    Decimal
-  
+  afterRepairValue Decimal
+
   // Rent phase inputs
   monthlyRent         Decimal
-  vacancyRatePercent  Decimal  @default("8.33") // 1/12 = 8.33%
-  propertyMgmtPercent Decimal  @default(0)
-  maintenancePercent  Decimal  @default("5")
-  capExPercent        Decimal  @default("5")
-  
+  vacancyRatePercent  Decimal @default("8.33") // 1/12 = 8.33%
+  propertyMgmtPercent Decimal @default(0)
+  maintenancePercent  Decimal @default("5")
+  capExPercent        Decimal @default("5")
+
   // Refinance phase inputs
-  refinanceLTV        Decimal  @default("75")
-  refinanceRate       Decimal? // If null, uses original interestRate
-  refinanceTermYears  Int?     // If null, uses original loanTermYears
-  refinanceClosingCosts Decimal @default(0)
-  
+  refinanceLTV          Decimal  @default("75")
+  refinanceRate         Decimal? // If null, uses original interestRate
+  refinanceTermYears    Int? // If null, uses original loanTermYears
+  refinanceClosingCosts Decimal  @default(0)
+
   // Repeat phase (for projections)
-  projectionYears     Int      @default(5)
-  appreciationPercent Decimal  @default("3")
-  rentGrowthPercent   Decimal  @default("2")
+  projectionYears      Int     @default(5)
+  appreciationPercent  Decimal @default("3")
+  rentGrowthPercent    Decimal @default("2")
   expenseGrowthPercent Decimal @default("2")
-  
+
   // Relations
   events              ScenarioEvent[]
   monthlyCalculations MonthlyCalculation[]
 }
 
 model ScenarioEvent {
-  id          String   @id @default(cuid())
-  scenarioId  String
-  scenario    Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
-  
+  id         String   @id @default(cuid())
+  scenarioId String
+  scenario   Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+
   eventType   EventType
-  month       Int      // Month index from start (0 = purchase month)
+  month       Int // Month index from start (0 = purchase month)
   description String?
-  metadata    Json?    // Additional data specific to event type
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  metadata    Json? // Additional data specific to event type
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum EventType {
@@ -98,43 +99,43 @@ enum EventType {
 }
 
 model MonthlyCalculation {
-  id          String   @id @default(cuid())
-  scenarioId  String
-  scenario    Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
-  
-  month       Int      // Month index from start (0 = purchase month)
-  
+  id         String   @id @default(cuid())
+  scenarioId String
+  scenario   Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+
+  month Int // Month index from start (0 = purchase month)
+
   // Financial position
-  propertyValue        Decimal
-  loanBalance          Decimal
-  equity               Decimal
-  
+  propertyValue Decimal
+  loanBalance   Decimal
+  equity        Decimal
+
   // Cash flow
-  rentalIncome         Decimal
-  vacancyLoss          Decimal
-  effectiveIncome      Decimal
-  
+  rentalIncome    Decimal
+  vacancyLoss     Decimal
+  effectiveIncome Decimal
+
   // Expenses
-  mortgagePayment      Decimal
-  propertyTax          Decimal
-  insurance            Decimal
-  propertyManagement   Decimal
-  maintenance          Decimal
-  capitalExpenditures  Decimal
-  utilities            Decimal
-  otherExpenses        Decimal
-  totalExpenses        Decimal
-  
+  mortgagePayment     Decimal
+  propertyTax         Decimal
+  insurance           Decimal
+  propertyManagement  Decimal
+  maintenance         Decimal
+  capitalExpenditures Decimal
+  utilities           Decimal
+  otherExpenses       Decimal
+  totalExpenses       Decimal
+
   // Results
-  cashFlow             Decimal  // effectiveIncome - totalExpenses
-  
+  cashFlow Decimal // effectiveIncome - totalExpenses
+
   // Cumulative metrics
-  totalInvested        Decimal  // Total cash invested up to this point
-  totalProfit          Decimal  // Cumulative cash flow
-  
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  
+  totalInvested Decimal // Total cash invested up to this point
+  totalProfit   Decimal // Cumulative cash flow
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Indexes for efficient queries
   @@index([scenarioId, month])
 }
