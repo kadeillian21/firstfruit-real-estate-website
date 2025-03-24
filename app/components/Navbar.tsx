@@ -24,7 +24,7 @@ export function Navbar() {
         </div>
 
         {/* Navigation Links */}
-        <ul className="flex space-x-10 text-white font-serif">
+        <ul className="flex space-x-8 text-white font-serif">
           <li className="relative group">
             <Link href="/about" className="hover:opacity-80 transition-colors flex items-center">
               About
@@ -33,6 +33,11 @@ export function Navbar() {
           <li className="relative group">
             <Link href="/our-work" className="hover:opacity-80 transition-colors flex items-center">
               Our Work
+            </Link>
+          </li>
+          <li className="relative group">
+            <Link href="/brrrr-calculator" className="hover:opacity-80 transition-colors flex items-center">
+              BRRRR Calculator
             </Link>
           </li>
           <li>
