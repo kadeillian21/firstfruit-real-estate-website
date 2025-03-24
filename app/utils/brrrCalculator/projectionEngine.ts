@@ -3,6 +3,17 @@ import { calculateMonthlyMortgagePayment } from './mortgageCalculator';
 import { RefinanceParams, calculateRefinance } from './refinanceCalculator';
 
 /**
+ * Holding cost configuration during rehab
+ */
+export interface HoldingCosts {
+  mortgage: boolean;
+  taxes: boolean;
+  insurance: boolean;
+  utilities: boolean;
+  other: boolean;
+}
+
+/**
  * Initial property acquisition details
  */
 export interface PropertyAcquisition {
@@ -14,6 +25,7 @@ export interface PropertyAcquisition {
   purchaseLoanRate?: number;
   purchaseLoanTermYears?: number;
   otherInitialCosts?: number;
+  includeHoldingCosts?: HoldingCosts;
 }
 
 /**
@@ -159,6 +171,15 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
   let isRehab = true;
   let rehabbingMonths = config.acquisition.rehabDurationMonths;
   
+  // Get holding costs configuration
+  const holdingCosts = config.acquisition.includeHoldingCosts || {
+    mortgage: true,
+    taxes: true,
+    insurance: true,
+    utilities: true,
+    other: false
+  };
+  
   // Create a map of monthly expenses for easier updating
   const currentExpenses: MonthlyExpenses = {
     mortgage: loanBalance > 0 
@@ -246,9 +267,32 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
       otherIncome: isRehab ? 0 : config.operation.otherMonthlyIncome
     };
     
-    // Calculate cash flow for this month
-    const cashFlow = isRehab ? 0 : (currentIncome.rent + currentIncome.otherIncome) - 
-      Object.values(currentExpenses).reduce((sum, value) => sum + value, 0);
+    // Calculate cash flow for this month based on rehab state and holding costs
+    let rehabExpenses = 0;
+    
+    if (isRehab) {
+      // Apply holding costs during rehab
+      if (holdingCosts.mortgage && currentExpenses.mortgage > 0) {
+        rehabExpenses += currentExpenses.mortgage;
+      }
+      if (holdingCosts.taxes) {
+        rehabExpenses += currentExpenses.taxes;
+      }
+      if (holdingCosts.insurance) {
+        rehabExpenses += currentExpenses.insurance;
+      }
+      if (holdingCosts.utilities) {
+        rehabExpenses += currentExpenses.utilities;
+      }
+      if (holdingCosts.other) {
+        rehabExpenses += currentExpenses.otherExpenses;
+      }
+    }
+    
+    const cashFlow = isRehab 
+      ? -rehabExpenses 
+      : (currentIncome.rent + currentIncome.otherIncome) - 
+        Object.values(currentExpenses).reduce((sum, value) => sum + value, 0);
     
     // Update total cash flow
     totalCashFlow += cashFlow;

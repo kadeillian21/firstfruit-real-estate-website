@@ -214,19 +214,19 @@ export default function RefinanceDetails({
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Month
+                  <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
+                    Timeline
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
                     ARV
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
                     LTV
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
                     Rate
                   </th>
-                  <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-2 text-xs font-medium brrrr-table-header uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -234,16 +234,16 @@ export default function RefinanceDetails({
               <tbody className="bg-white divide-y divide-gray-200">
                 {refinanceEvents.map((event, index) => (
                   <tr key={index}>
-                    <td className="px-4 py-2 whitespace-nowrap">
-                      {event.month}
+                    <td className="px-4 py-2 whitespace-nowrap brrrr-table-cell">
+                      Month {event.month} ({Math.floor(event.month/12)}y {event.month%12}m)
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap">
+                    <td className="px-4 py-2 whitespace-nowrap brrrr-table-cell">
                       ${event.afterRepairValue.toLocaleString()}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap">
+                    <td className="px-4 py-2 whitespace-nowrap brrrr-table-cell">
                       {(event.refinanceLTV * 100).toFixed(0)}%
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap">
+                    <td className="px-4 py-2 whitespace-nowrap brrrr-table-cell">
                       {(event.refinanceRate * 100).toFixed(2)}%
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-right">

@@ -31,7 +31,14 @@ const defaultConfig: ProjectionConfig = {
     purchaseLoanAmount: 75000,
     purchaseLoanRate: 0.06,
     purchaseLoanTermYears: 30,
-    otherInitialCosts: 2000
+    otherInitialCosts: 2000,
+    includeHoldingCosts: {
+      mortgage: true,
+      taxes: true,
+      insurance: true,
+      utilities: true,
+      other: false
+    }
   },
   operation: {
     monthlyRent: 1200,
@@ -306,13 +313,13 @@ export default function BRRRRCalculator() {
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6">
+    <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-100">
       {/* Deal selector and controls */}
       <div className="mb-8 flex flex-wrap justify-between gap-4">
-        <div>
+        <div className="flex flex-wrap gap-2">
           <button 
             onClick={createNewDeal}
-            className="bg-grass text-white py-2 px-4 rounded-lg hover:bg-grass/80 mr-2"
+            className="bg-grass text-white py-2 px-4 rounded-md hover:bg-grass/90 transition-colors font-medium shadow-sm"
           >
             New Deal
           </button>
@@ -320,7 +327,7 @@ export default function BRRRRCalculator() {
           {savedDeals.length > 0 && (
             <select 
               onChange={(e) => loadDeal(e.target.value)}
-              className="border rounded-lg py-2 px-4"
+              className="border border-gray-300 rounded-md py-2 px-4 text-gray-900 focus:ring-navy focus:border-navy"
               value=""
             >
               <option value="" disabled>Load saved deal</option>
@@ -336,25 +343,30 @@ export default function BRRRRCalculator() {
         <div>
           <button 
             onClick={saveDeal}
-            className="bg-navy text-white py-2 px-4 rounded-lg hover:bg-navy/80"
+            className="bg-navy text-white py-2 px-4 rounded-md hover:bg-navy/90 transition-colors font-medium shadow-sm flex items-center"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+            </svg>
             Save Deal
           </button>
         </div>
       </div>
 
       {/* Current deal name and step */}
-      <div className="mb-8 border-b pb-4">
-        <h2 className="text-2xl font-semibold">{dealData.name}</h2>
-        {dealData.address && <p className="text-gray-600">{dealData.address}</p>}
+      <div className="mb-8 border-b border-gray-200 pb-4">
+        <h2 className="text-2xl font-bold text-gray-900">{dealData.name}</h2>
+        {dealData.address && <p className="text-gray-900">{dealData.address}</p>}
       </div>
 
       {/* Timeline navigation */}
-      <Timeline 
-        steps={steps} 
-        currentStep={currentStep} 
-        onStepClick={jumpToStep} 
-      />
+      <div className="bg-gray-50 p-4 rounded-lg mb-8">
+        <Timeline 
+          steps={steps} 
+          currentStep={currentStep} 
+          onStepClick={jumpToStep} 
+        />
+      </div>
       
       {/* Step content */}
       <div className="my-8">
@@ -362,29 +374,35 @@ export default function BRRRRCalculator() {
       </div>
       
       {/* Navigation buttons */}
-      <div className="flex justify-between mt-8">
+      <div className="flex justify-between mt-8 border-t border-gray-200 pt-6">
         <button
           onClick={handlePrevious}
           disabled={currentStep === 0}
-          className={`py-2 px-6 rounded-lg ${
+          className={`py-2 px-6 rounded-md transition-colors font-medium shadow-sm flex items-center ${
             currentStep === 0 
-              ? 'bg-gray-300 cursor-not-allowed' 
-              : 'bg-navy text-white hover:bg-navy/80'
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+              : 'bg-navy text-white hover:bg-navy/90'
           }`}
         >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
           Previous
         </button>
         
         <button
           onClick={handleNext}
           disabled={currentStep === steps.length - 1}
-          className={`py-2 px-6 rounded-lg ${
+          className={`py-2 px-6 rounded-md transition-colors font-medium shadow-sm flex items-center ${
             currentStep === steps.length - 1 
-              ? 'bg-gray-300 cursor-not-allowed' 
-              : 'bg-grass text-white hover:bg-grass/80'
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+              : 'bg-grass text-white hover:bg-grass/90'
           }`}
         >
           Next
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
       </div>
     </div>

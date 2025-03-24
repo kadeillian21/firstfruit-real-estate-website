@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 
 interface CurrencyInputProps {
   value: number;
@@ -15,6 +15,8 @@ export default function CurrencyInput({
   placeholder = '0.00',
   disabled = false
 }: CurrencyInputProps) {
+  const [isFocused, setIsFocused] = useState(false);
+  
   // Format value for display
   const displayValue = value ? value.toString() : '';
   
@@ -31,16 +33,18 @@ export default function CurrencyInput({
   
   return (
     <div className="relative">
-      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700">
         $
       </span>
       <input
         type="text"
         value={displayValue}
         onChange={handleChange}
-        placeholder={placeholder}
+        placeholder={isFocused || displayValue ? '' : placeholder}
         disabled={disabled}
-        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:ring-navy focus:border-navy"
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:ring-navy focus:border-navy text-gray-900 font-medium placeholder:text-gray-500"
       />
     </div>
   );

@@ -321,22 +321,22 @@ export default function RentalDetails({
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Month
+                    <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
+                      Timeline
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
                       New Rent
                     </th>
-                    <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-xs font-medium brrrr-table-header uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {rentChangeEvents.map((event, index) => (
-                    <tr key={index}>
+                    <tr key={index} className="brrrr-table-cell">
                       <td className="px-4 py-2 whitespace-nowrap">
-                        {event.month}
+                        Month {event.month} ({Math.floor(event.month/12)}y {event.month%12}m)
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap">
                         ${event.newRent.toLocaleString()}
@@ -443,25 +443,25 @@ export default function RentalDetails({
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Month
+                    <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
+                      Timeline
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
                       Expense Type
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
                       New Amount
                     </th>
-                    <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-xs font-medium brrrr-table-header uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {expenseChangeEvents.map((event, index) => (
-                    <tr key={index}>
+                    <tr key={index} className="brrrr-table-cell">
                       <td className="px-4 py-2 whitespace-nowrap">
-                        {event.month}
+                        Month {event.month} ({Math.floor(event.month/12)}y {event.month%12}m)
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap">
                         {getExpenseTypeName(event.expenseType)}

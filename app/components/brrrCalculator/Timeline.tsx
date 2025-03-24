@@ -15,9 +15,18 @@ interface TimelineProps {
 
 export default function Timeline({ steps, currentStep, onStepClick }: TimelineProps) {
   return (
-    <div className="relative">
+    <div className="relative py-2">
       {/* Horizontal line connecting steps */}
       <div className="hidden sm:block absolute top-1/2 left-0 w-full h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
+      
+      {/* Progress line (fills in as steps are completed) */}
+      <div 
+        className="hidden sm:block absolute top-1/2 left-0 h-1 bg-grass -translate-y-1/2 z-0 transition-all duration-300"
+        style={{ 
+          width: `${currentStep / (steps.length - 1) * 100}%`,
+          maxWidth: currentStep === steps.length - 1 ? '100%' : `calc(${currentStep / (steps.length - 1) * 100}% + 1rem)`
+        }}
+      ></div>
       
       {/* Steps */}
       <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center z-10">
@@ -36,32 +45,32 @@ export default function Timeline({ steps, currentStep, onStepClick }: TimelinePr
             >
               {/* Step circle */}
               <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors duration-300 ${
+                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
                   isCompleted
-                    ? 'bg-grass text-white'
+                    ? 'bg-grass border-grass text-white shadow-md'
                     : isCurrent
-                    ? 'bg-navy text-white'
-                    : 'bg-gray-200 text-gray-600 group-hover:bg-gray-300'
+                    ? 'bg-navy border-navy text-white shadow-md'
+                    : 'bg-white border-gray-300 text-gray-900 group-hover:border-gray-400 group-hover:bg-gray-50'
                 }`}
               >
                 {isCompleted ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
-                  <span>{index + 1}</span>
+                  <span className="font-semibold">{index + 1}</span>
                 )}
               </div>
               
               {/* Step label */}
               <div className="mt-2 text-center">
                 <span
-                  className={`text-sm font-medium ${
+                  className={`text-sm font-semibold transition-colors duration-300 ${
                     isCurrent
                       ? 'text-navy'
                       : isCompleted
                       ? 'text-grass'
-                      : 'text-gray-600'
+                      : 'text-gray-900 group-hover:text-gray-700'
                   }`}
                 >
                   {step.label}
@@ -70,7 +79,7 @@ export default function Timeline({ steps, currentStep, onStepClick }: TimelinePr
               
               {/* Mobile connector line (only between steps) */}
               {index < steps.length - 1 && (
-                <div className="sm:hidden w-1 h-6 bg-gray-200 my-1"></div>
+                <div className={`sm:hidden w-1 h-8 my-1 ${isCompleted ? 'bg-grass' : 'bg-gray-200'}`}></div>
               )}
             </div>
           );
