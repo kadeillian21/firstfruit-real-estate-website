@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { PropertyValueChangeEvent } from '../../utils/brrrCalculator/projectionEngine';
 import CurrencyInput from './ui/CurrencyInput';
 import PercentageInput from './ui/PercentageInput';
+import NumberInput from './ui/NumberInput';
 
 interface ProjectionSettingsProps {
   projectionMonths: number;
@@ -177,13 +178,12 @@ export default function ProjectionSettings({
           
           <div className="flex items-center ml-2">
             <span className="mr-2 text-gray-900">Custom:</span>
-            <input
-              type="number"
-              min="1"
-              max="240"
+            <NumberInput
+              min={1}
+              max={240}
               value={projectionMonths}
-              onChange={(e) => updateProjectionMonths(parseInt(e.target.value) || 12)}
-              className="brrrr-input w-24"
+              onChange={updateProjectionMonths}
+              className="w-24"
             />
             <span className="ml-2 text-gray-900">months</span>
             <span className="ml-2 text-gray-900">({projectionYears} years)</span>
@@ -244,12 +244,11 @@ export default function ProjectionSettings({
                 <label className="brrrr-label text-blue-900">
                   Apply For (years)
                 </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="30"
+                <NumberInput
+                  min={1}
+                  max={30}
                   value={appreciationYears}
-                  onChange={(e) => setAppreciationYears(parseInt(e.target.value) || 1)}
+                  onChange={setAppreciationYears}
                   className="brrrr-input"
                   placeholder="1"
                 />
@@ -283,14 +282,13 @@ export default function ProjectionSettings({
               <label className="brrrr-label">
                 Month
               </label>
-              <input
-                type="number"
-                min="1"
+              <NumberInput
+                min={1}
                 max={projectionMonths}
                 value={newValueChange.month}
-                onChange={(e) => setNewValueChange({
+                onChange={(value) => setNewValueChange({
                   ...newValueChange,
-                  month: parseInt(e.target.value) || 1
+                  month: value
                 })}
                 className="brrrr-input"
               />

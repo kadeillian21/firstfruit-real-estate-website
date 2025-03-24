@@ -6,8 +6,10 @@ import {
   RentChangeEvent,
   ExpenseChangeEvent 
 } from '../../utils/brrrCalculator/projectionEngine';
+import { MonthlyExpenses } from '../../utils/brrrCalculator/cashFlowCalculator';
 import CurrencyInput from './ui/CurrencyInput';
 import PercentageInput from './ui/PercentageInput';
+import NumberInput from './ui/NumberInput';
 
 interface RentalDetailsProps {
   operation: PropertyOperation;
@@ -34,6 +36,22 @@ export default function RentalDetails({
     month: 12, // Default to 1 year
     newRent: operation.monthlyRent * 1.03 // Default to 3% increase
   });
+
+  // Map PropertyOperation keys to MonthlyExpenses keys
+  const mapOperationToExpenseType = (key: keyof PropertyOperation): keyof MonthlyExpenses => {
+    const mapping: Record<keyof PropertyOperation, keyof MonthlyExpenses> = {
+      monthlyRent: 'mortgage', // Not actually used
+      otherMonthlyIncome: 'mortgage', // Not actually used
+      propertyTaxes: 'taxes',
+      insurance: 'insurance',
+      maintenance: 'maintenance',
+      propertyManagement: 'propertyManagement',
+      utilities: 'utilities',
+      vacancyRate: 'vacancyAllowance',
+      otherExpenses: 'otherExpenses'
+    };
+    return mapping[key];
+  };
 
   // State for new expense change event
   const [newExpenseChange, setNewExpenseChange] = useState<{
@@ -89,11 +107,14 @@ export default function RentalDetails({
   // Add a new expense change event
   const addExpenseChange = () => {
     if (newExpenseChange.newAmount > 0) {
+      // Map the PropertyOperation key to a MonthlyExpenses key
+      const mappedExpenseType = mapOperationToExpenseType(newExpenseChange.expenseType);
+      
       const updatedEvents = [
         ...expenseChangeEvents,
         {
           month: newExpenseChange.month,
-          expenseType: newExpenseChange.expenseType,
+          expenseType: mappedExpenseType,
           newAmount: newExpenseChange.newAmount
         }
       ];
@@ -122,13 +143,20 @@ export default function RentalDetails({
   // Get friendly name for expense type
   const getExpenseTypeName = (type: string): string => {
     const names: Record<string, string> = {
-      propertyTaxes: 'Property Taxes',
+      // MonthlyExpenses keys
+      taxes: 'Property Taxes',
       insurance: 'Insurance',
       maintenance: 'Maintenance',
       propertyManagement: 'Property Management',
       utilities: 'Utilities',
-      vacancyRate: 'Vacancy Rate',
-      otherExpenses: 'Other Expenses'
+      vacancyAllowance: 'Vacancy Rate',
+      otherExpenses: 'Other Expenses',
+      mortgage: 'Mortgage',
+      capitalReserves: 'Capital Reserves',
+      
+      // PropertyOperation keys
+      propertyTaxes: 'Property Taxes',
+      vacancyRate: 'Vacancy Rate'
     };
     
     return names[type] || type;
@@ -271,15 +299,14 @@ export default function RentalDetails({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Month
             </label>
-            <input
-              type="number"
-              min="1"
+            <NumberInput
+              min={1}
               value={newRentChange.month}
-              onChange={(e) => setNewRentChange({
+              onChange={(value) => setNewRentChange({
                 ...newRentChange,
-                month: parseInt(e.target.value) || 1
+                month: value
               })}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full"
             />
           </div>
           
@@ -371,15 +398,14 @@ export default function RentalDetails({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Month
             </label>
-            <input
-              type="number"
-              min="1"
+            <NumberInput
+              min={1}
               value={newExpenseChange.month}
-              onChange={(e) => setNewExpenseChange({
+              onChange={(value) => setNewExpenseChange({
                 ...newExpenseChange,
-                month: parseInt(e.target.value) || 1
+                month: value
               })}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full"
             />
           </div>
           

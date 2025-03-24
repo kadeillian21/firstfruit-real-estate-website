@@ -9,6 +9,8 @@ export interface HoldingCosts {
   mortgage: boolean;
   taxes: boolean;
   insurance: boolean;
+  maintenance: boolean;
+  propertyManagement: boolean;
   utilities: boolean;
   other: boolean;
 }
@@ -81,12 +83,14 @@ export interface ExpenseChangeEvent {
 }
 
 /**
- * One-time capital expense
+ * Capital expense component
  */
 export interface CapitalExpenseEvent {
-  month: number;
-  description: string;
-  amount: number;
+  component: string;       // Name of the component (e.g., "Roof", "HVAC")
+  lifespan: number;        // Expected lifespan in years
+  replacementCost: number; // Cost to replace when lifespan ends
+  lastReplaced?: number;   // Optional: years since last replacement
+  monthlyBudget?: number;  // Calculated monthly budget amount
 }
 
 /**
@@ -176,10 +180,18 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
     mortgage: true,
     taxes: true,
     insurance: true,
+    maintenance: false,
+    propertyManagement: false,
     utilities: true,
     other: false
   };
   
+  // Calculate monthly capital expense budget
+  const monthlyCapitalBudget = (config.capitalExpenseEvents || []).reduce(
+    (sum, item) => sum + (item.monthlyBudget || 0), 
+    0
+  );
+
   // Create a map of monthly expenses for easier updating
   const currentExpenses: MonthlyExpenses = {
     mortgage: loanBalance > 0 
@@ -195,7 +207,8 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
     propertyManagement: currentRent * (config.operation.propertyManagement / 100),
     utilities: config.operation.utilities,
     vacancyAllowance: currentRent * (config.operation.vacancyRate / 100),
-    otherExpenses: config.operation.otherExpenses
+    otherExpenses: config.operation.otherExpenses,
+    capitalReserves: monthlyCapitalBudget // Add capital reserves as monthly expense
   };
   
   // Process each month of the projection
@@ -253,12 +266,9 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
       eventDescription = `${expenseChangeEvent.expenseType} expense changed to $${expenseChangeEvent.newAmount.toLocaleString()}`;
     }
     
-    // Check for capital expense
-    const capitalExpenseEvent = (config.capitalExpenseEvents || []).find(e => e.month === currentMonth);
-    if (capitalExpenseEvent) {
-      totalInvestment += capitalExpenseEvent.amount;
-      remainingInvestment += capitalExpenseEvent.amount;
-      eventDescription = `Capital expense: ${capitalExpenseEvent.description} - $${capitalExpenseEvent.amount.toLocaleString()}`;
+    // Add description for capital expense budgeting in the first month
+    if (currentMonth === 1 && currentExpenses.capitalReserves && currentExpenses.capitalReserves > 0) {
+      eventDescription = `Started monthly capital expense budgeting: $${currentExpenses.capitalReserves.toFixed(2)}/month`;
     }
     
     // Calculate current income
@@ -280,6 +290,12 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
       }
       if (holdingCosts.insurance) {
         rehabExpenses += currentExpenses.insurance;
+      }
+      if (holdingCosts.maintenance) {
+        rehabExpenses += currentExpenses.maintenance;
+      }
+      if (holdingCosts.propertyManagement) {
+        rehabExpenses += currentExpenses.propertyManagement;
       }
       if (holdingCosts.utilities) {
         rehabExpenses += currentExpenses.utilities;

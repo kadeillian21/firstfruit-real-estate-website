@@ -8,6 +8,7 @@ import {
 import { calculateMinimumARV } from '../../utils/brrrCalculator/refinanceCalculator';
 import CurrencyInput from './ui/CurrencyInput';
 import PercentageInput from './ui/PercentageInput';
+import NumberInput from './ui/NumberInput';
 
 interface RefinanceDetailsProps {
   refinanceEvents: RefinanceEvent[];
@@ -30,11 +31,11 @@ export default function RefinanceDetails({
   // State for new refinance event
   const [newRefinance, setNewRefinance] = useState<RefinanceEvent>({
     month: acquisition.rehabDurationMonths + 1,
-    afterRepairValue: totalInvestment * 1.25, // Default to 25% equity gain
-    refinanceLTV: 0.75,
-    refinanceRate: 0.05,
+    afterRepairValue: 0,
+    refinanceLTV: 0.70,
+    refinanceRate: 0.07,
     refinanceTermYears: 30,
-    refinanceClosingCosts: 3500
+    refinanceClosingCosts: 0
   });
 
   // Add a new refinance event
@@ -97,15 +98,14 @@ export default function RefinanceDetails({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Refinance Month
             </label>
-            <input
-              type="number"
+            <NumberInput
               min={acquisition.rehabDurationMonths + 1}
               value={newRefinance.month}
-              onChange={(e) => setNewRefinance({
+              onChange={(value) => setNewRefinance({
                 ...newRefinance,
-                month: parseInt(e.target.value) || acquisition.rehabDurationMonths + 1
+                month: value
               })}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full"
             />
             <p className="text-xs text-gray-500 mt-1">
               Must be after rehab completion (month {acquisition.rehabDurationMonths + 1})
@@ -168,18 +168,16 @@ export default function RefinanceDetails({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Loan Term (years)
             </label>
-            <select
+            <NumberInput
+              min={1}
+              max={40}
               value={newRefinance.refinanceTermYears}
-              onChange={(e) => setNewRefinance({
+              onChange={(value) => setNewRefinance({
                 ...newRefinance,
-                refinanceTermYears: parseInt(e.target.value)
+                refinanceTermYears: value
               })}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            >
-              <option value={15}>15 years</option>
-              <option value={20}>20 years</option>
-              <option value={30}>30 years</option>
-            </select>
+              className="w-full"
+            />
           </div>
           
           <div>

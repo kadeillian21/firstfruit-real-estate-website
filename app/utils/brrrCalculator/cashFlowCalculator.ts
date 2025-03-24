@@ -18,6 +18,7 @@ export interface MonthlyExpenses {
   utilities: number;
   vacancyAllowance: number;
   otherExpenses: number;
+  capitalReserves?: number; // Monthly contributions to capital expense reserves
 }
 
 /**
@@ -41,7 +42,8 @@ export function calculateMonthlyCashFlow(
     expenses.propertyManagement +
     expenses.utilities +
     expenses.vacancyAllowance +
-    expenses.otherExpenses;
+    expenses.otherExpenses +
+    (expenses.capitalReserves || 0); // Include capital reserves
   
   return Number((totalIncome - totalExpenses).toFixed(2));
 }

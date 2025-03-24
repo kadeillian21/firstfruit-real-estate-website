@@ -21,13 +21,26 @@ export default function AcquisitionDetails({
       : 20
   );
   
+  // Define holding costs type
+  type HoldingCostsType = {
+    mortgage: boolean;
+    taxes: boolean;
+    insurance: boolean;
+    maintenance: boolean;
+    propertyManagement: boolean;
+    utilities: boolean;
+    other: boolean;
+  };
+  
   // State for holding costs
-  const [holdingCosts, setHoldingCosts] = useState({
-    mortgage: acquisition.includeHoldingCosts?.mortgage || true,
-    taxes: acquisition.includeHoldingCosts?.taxes || true,
-    insurance: acquisition.includeHoldingCosts?.insurance || true,
-    utilities: acquisition.includeHoldingCosts?.utilities || true,
-    other: acquisition.includeHoldingCosts?.other || false
+  const [holdingCosts, setHoldingCosts] = useState<HoldingCostsType>({
+    mortgage: acquisition.includeHoldingCosts?.mortgage ?? true,
+    taxes: acquisition.includeHoldingCosts?.taxes ?? true,
+    insurance: acquisition.includeHoldingCosts?.insurance ?? true,
+    maintenance: acquisition.includeHoldingCosts?.maintenance ?? false,
+    propertyManagement: acquisition.includeHoldingCosts?.propertyManagement ?? false,
+    utilities: acquisition.includeHoldingCosts?.utilities ?? true,
+    other: acquisition.includeHoldingCosts?.other ?? false
   });
 
   // Helper to update a specific field
@@ -261,7 +274,37 @@ export default function AcquisitionDetails({
       
       {/* Holding Costs During Rehab */}
       <div className="bg-amber-50 p-6 rounded-lg shadow-sm border border-amber-100 space-y-4">
-        <h4 className="text-lg font-medium text-amber-900 mb-1">Holding Costs During Rehab</h4>
+        <div className="flex justify-between">
+          <h4 className="text-lg font-medium text-amber-900 mb-1">Holding Costs During Rehab</h4>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => {
+                const allSelected = Object.values(holdingCosts).every(value => value === true);
+                const newValue = !allSelected;
+                const updatedHoldingCosts = {
+                  mortgage: acquisition.purchaseLoanAmount ? newValue : false,
+                  taxes: newValue,
+                  insurance: newValue,
+                  maintenance: newValue,
+                  propertyManagement: newValue,
+                  utilities: newValue,
+                  other: newValue
+                };
+                
+                setHoldingCosts(updatedHoldingCosts);
+                updateAcquisition({
+                  ...acquisition,
+                  includeHoldingCosts: updatedHoldingCosts
+                });
+              }}
+              className="text-sm bg-amber-700 hover:bg-amber-800 text-white py-1 px-3 rounded-md transition-colors"
+            >
+              {Object.values(holdingCosts).every(value => value === true) ? 'Deselect All' : 'Select All'}
+            </button>
+          </div>
+        </div>
+        
         <p className="text-sm text-amber-800 mb-3">
           Select which expenses you'll have during the rehab period:
         </p>
@@ -310,6 +353,32 @@ export default function AcquisitionDetails({
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
+              id="holding-maintenance"
+              checked={holdingCosts.maintenance}
+              onChange={(e) => updateHoldingCostField('maintenance', e.target.checked)}
+              className="w-4 h-4 text-navy focus:ring-navy"
+            />
+            <label htmlFor="holding-maintenance" className="text-gray-900">
+              Maintenance
+            </label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="holding-propertyManagement"
+              checked={holdingCosts.propertyManagement}
+              onChange={(e) => updateHoldingCostField('propertyManagement', e.target.checked)}
+              className="w-4 h-4 text-navy focus:ring-navy"
+            />
+            <label htmlFor="holding-propertyManagement" className="text-gray-900">
+              Property Management
+            </label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
               id="holding-utilities"
               checked={holdingCosts.utilities}
               onChange={(e) => updateHoldingCostField('utilities', e.target.checked)}
@@ -319,6 +388,7 @@ export default function AcquisitionDetails({
               Utilities
             </label>
           </div>
+          
           
           <div className="flex items-center space-x-2">
             <input
@@ -332,6 +402,12 @@ export default function AcquisitionDetails({
               Other Expenses
             </label>
           </div>
+        </div>
+        
+        <div className="mt-2 p-3 bg-amber-100 rounded-md text-amber-800 text-sm">
+          <p className="font-medium">Pro Tip:</p>
+          <p>Holding costs during rehab can significantly impact your returns. Be sure to account for all expenses you'll incur while the property isn't generating income.</p>
+          <p className="mt-1"><span className="font-medium">Note:</span> Vacancy costs are not included here since the property is already vacant during rehab.</p>
         </div>
       </div>
       

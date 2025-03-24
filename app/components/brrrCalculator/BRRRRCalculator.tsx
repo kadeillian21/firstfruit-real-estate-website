@@ -24,44 +24,37 @@ export type DealData = {
 // Default projection configuration
 const defaultConfig: ProjectionConfig = {
   acquisition: {
-    purchasePrice: 100000,
-    closingCosts: 3000,
-    rehabCosts: 25000,
-    rehabDurationMonths: 2,
-    purchaseLoanAmount: 75000,
-    purchaseLoanRate: 0.06,
+    purchasePrice: 0,
+    closingCosts: 0,
+    rehabCosts: 0,
+    rehabDurationMonths: 0,
+    purchaseLoanAmount: 0,
+    purchaseLoanRate: 0.07,
     purchaseLoanTermYears: 30,
-    otherInitialCosts: 2000,
+    otherInitialCosts: 0,
     includeHoldingCosts: {
       mortgage: true,
       taxes: true,
       insurance: true,
+      maintenance: true,
+      propertyManagement: false,
       utilities: true,
       other: false
     }
   },
   operation: {
-    monthlyRent: 1200,
+    monthlyRent: 0,
     otherMonthlyIncome: 0,
-    propertyTaxes: 1800,
-    insurance: 1200,
-    maintenance: 100,
-    propertyManagement: 10, // percentage
+    propertyTaxes: 0,
+    insurance: 0,
+    maintenance: 0,
+    propertyManagement: 8, // percentage
     utilities: 0,
     vacancyRate: 5, // percentage
-    otherExpenses: 50
+    otherExpenses: 0
   },
   projectionMonths: 60,
-  refinanceEvents: [
-    {
-      month: 3,
-      afterRepairValue: 150000,
-      refinanceLTV: 0.75,
-      refinanceRate: 0.05,
-      refinanceTermYears: 30,
-      refinanceClosingCosts: 3500
-    }
-  ],
+  refinanceEvents: [],
   propertyValueChanges: [],
   rentChangeEvents: [],
   expenseChangeEvents: [],
