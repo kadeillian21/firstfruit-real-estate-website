@@ -239,18 +239,6 @@ export default function BRRRRCalculator() {
     }
   };
 
-  // Delete a deal
-  const deleteDeal = (dealId: string) => {
-    if (window.confirm('Are you sure you want to delete this deal?')) {
-      setSavedDeals(savedDeals.filter(deal => deal.id !== dealId));
-      
-      // If the current deal is being deleted, create a new one
-      if (dealData.id === dealId) {
-        createNewDeal();
-      }
-    }
-  };
-
   // Render the current step content
   const renderStepContent = () => {
     switch (steps[currentStep].id) {
@@ -369,11 +357,7 @@ export default function BRRRRCalculator() {
         );
       case 'summary':
         return (
-          <DealSummary
-            dealData={dealData}
-            onSave={saveDeal}
-            onDelete={() => deleteDeal(dealData.id)}
-          />
+          <DealSummary dealData={dealData} />
         );
       default:
         return <div>Unknown step</div>;

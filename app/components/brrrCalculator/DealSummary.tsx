@@ -9,14 +9,10 @@ import {
 
 interface DealSummaryProps {
   dealData: DealData;
-  onSave: () => void;
-  onDelete: () => void;
 }
 
 export default function DealSummary({
   dealData,
-  onSave,
-  onDelete
 }: DealSummaryProps) {
   // State for projection results
   const [projection, setProjection] = useState<ProjectionResult | null>(null);

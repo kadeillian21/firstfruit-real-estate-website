@@ -442,11 +442,7 @@ export default function DealAnalyzer() {
         );
       case 'summary':
         return (
-          <DealSummary
-            dealData={dealData}
-            onSave={saveDeal}
-            onDelete={() => deleteDeal(dealData.id)}
-          />
+          <DealSummary dealData={dealData} />
         );
     }
 
