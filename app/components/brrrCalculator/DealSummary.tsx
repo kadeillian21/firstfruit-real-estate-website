@@ -95,22 +95,6 @@ export default function DealSummary({
       <div className="bg-gray-50 p-6 rounded-lg space-y-6">
         <div className="flex justify-between items-center">
           <h4 className="text-lg font-medium text-black">Key Metrics</h4>
-          
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onSave}
-              className="py-2 px-4 bg-grass text-white rounded-md hover:bg-grass/80"
-            >
-              Save Deal
-            </button>
-            
-            <button
-              onClick={onDelete}
-              className="py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700"
-            >
-              Delete Deal
-            </button>
-          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
