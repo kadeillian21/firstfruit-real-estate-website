@@ -28,19 +28,20 @@ export default function Timeline({ steps, currentStep, onStepClick }: TimelinePr
         }}
       ></div>
       
-      {/* Steps */}
-      <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center z-10">
+      {/* Steps with fixed positioning */}
+      <div className="relative flex flex-col sm:grid z-10" style={{ gridTemplateColumns: `repeat(${steps.length}, 1fr)` }}>
         {steps.map((step, index) => {
           // Determine step status
           const isCompleted = index < currentStep;
           const isCurrent = index === currentStep;
           
+          // Calculate percentage position for the bubble
+          const position = index === 0 ? 0 : index === steps.length - 1 ? 100 : (index / (steps.length - 1)) * 100;
+          
           return (
             <div 
               key={step.id} 
-              className={`flex flex-col items-center mb-4 sm:mb-0 cursor-pointer group ${
-                index === steps.length - 1 ? '' : 'sm:flex-1'
-              }`}
+              className="flex flex-col items-center mb-4 sm:mb-0 cursor-pointer group"
               onClick={() => onStepClick(index)}
             >
               {/* Step circle */}

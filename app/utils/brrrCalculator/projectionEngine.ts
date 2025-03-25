@@ -28,6 +28,8 @@ export interface PropertyAcquisition {
   purchaseLoanTermYears?: number;
   otherInitialCosts?: number;
   includeHoldingCosts?: HoldingCosts;
+  useCustomHoldingCost?: boolean;
+  customMonthlyHoldingCost?: number;
 }
 
 /**
@@ -163,11 +165,76 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
   // Initialize tracking variables
   let currentMonth = 1;
   let propertyValue = config.acquisition.purchasePrice;
+  
+  // Calculate total holding costs during rehab
+  // If using custom holding cost, use that directly
+  let holdingCostsDuringRehab = 0;
+  if (config.acquisition.useCustomHoldingCost && config.acquisition.customMonthlyHoldingCost) {
+    holdingCostsDuringRehab = config.acquisition.rehabDurationMonths * config.acquisition.customMonthlyHoldingCost;
+  } else {
+    // Calculate estimated monthly costs based on selected options
+    let monthlyHolding = 0;
+    
+    // Calculate based on checked options
+    const holdingCosts = config.acquisition.includeHoldingCosts || {
+      mortgage: true,
+      taxes: true,
+      insurance: true,
+      maintenance: false,
+      propertyManagement: false,
+      utilities: true,
+      other: false
+    };
+    
+    if (holdingCosts.mortgage && config.acquisition.purchaseLoanAmount && config.acquisition.purchaseLoanRate && config.acquisition.purchaseLoanTermYears) {
+      // Estimate monthly mortgage payment
+      const rate = config.acquisition.purchaseLoanRate / 12; // monthly rate
+      const payments = config.acquisition.purchaseLoanTermYears * 12; // total number of payments
+      const mortgagePayment = config.acquisition.purchaseLoanAmount * 
+        (rate * Math.pow(1 + rate, payments)) / 
+        (Math.pow(1 + rate, payments) - 1);
+      monthlyHolding += mortgagePayment;
+    }
+    
+    if (holdingCosts.taxes) {
+      // Assume typical property taxes are 1-2% of property value annually
+      const monthlyTaxes = (config.acquisition.purchasePrice * 0.015) / 12;
+      monthlyHolding += monthlyTaxes;
+    }
+    
+    if (holdingCosts.insurance) {
+      // Assume insurance is about 0.5% of property value annually
+      const monthlyInsurance = (config.acquisition.purchasePrice * 0.005) / 12;
+      monthlyHolding += monthlyInsurance;
+    }
+    
+    if (holdingCosts.utilities) {
+      // Estimate basic utilities
+      monthlyHolding += 200;
+    }
+    
+    if (holdingCosts.maintenance) {
+      monthlyHolding += 100;
+    }
+    
+    if (holdingCosts.propertyManagement) {
+      monthlyHolding += 100;
+    }
+    
+    if (holdingCosts.other) {
+      monthlyHolding += 100;
+    }
+    
+    holdingCostsDuringRehab = monthlyHolding * config.acquisition.rehabDurationMonths;
+  }
+  
+  // Total investment includes all costs
   const totalInvestment = 
     config.acquisition.purchasePrice + 
     config.acquisition.closingCosts + 
     config.acquisition.rehabCosts +
-    (config.acquisition.otherInitialCosts || 0);
+    (config.acquisition.otherInitialCosts || 0) +
+    holdingCostsDuringRehab;
   let remainingInvestment = totalInvestment;
   let loanBalance = config.acquisition.purchaseLoanAmount || 0;
   let totalCashFlow = 0;
@@ -281,27 +348,32 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
     let rehabExpenses = 0;
     
     if (isRehab) {
-      // Apply holding costs during rehab
-      if (holdingCosts.mortgage && currentExpenses.mortgage > 0) {
-        rehabExpenses += currentExpenses.mortgage;
-      }
-      if (holdingCosts.taxes) {
-        rehabExpenses += currentExpenses.taxes;
-      }
-      if (holdingCosts.insurance) {
-        rehabExpenses += currentExpenses.insurance;
-      }
-      if (holdingCosts.maintenance) {
-        rehabExpenses += currentExpenses.maintenance;
-      }
-      if (holdingCosts.propertyManagement) {
-        rehabExpenses += currentExpenses.propertyManagement;
-      }
-      if (holdingCosts.utilities) {
-        rehabExpenses += currentExpenses.utilities;
-      }
-      if (holdingCosts.other) {
-        rehabExpenses += currentExpenses.otherExpenses;
+      // If using custom holding cost, use that directly
+      if (config.acquisition.useCustomHoldingCost && config.acquisition.customMonthlyHoldingCost !== undefined) {
+        rehabExpenses = config.acquisition.customMonthlyHoldingCost;
+      } else {
+        // Apply holding costs during rehab based on selected options
+        if (holdingCosts.mortgage && currentExpenses.mortgage > 0) {
+          rehabExpenses += currentExpenses.mortgage;
+        }
+        if (holdingCosts.taxes) {
+          rehabExpenses += currentExpenses.taxes;
+        }
+        if (holdingCosts.insurance) {
+          rehabExpenses += currentExpenses.insurance;
+        }
+        if (holdingCosts.maintenance) {
+          rehabExpenses += currentExpenses.maintenance;
+        }
+        if (holdingCosts.propertyManagement) {
+          rehabExpenses += currentExpenses.propertyManagement;
+        }
+        if (holdingCosts.utilities) {
+          rehabExpenses += currentExpenses.utilities;
+        }
+        if (holdingCosts.other) {
+          rehabExpenses += currentExpenses.otherExpenses;
+        }
       }
     }
     

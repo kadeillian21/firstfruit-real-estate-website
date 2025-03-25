@@ -91,11 +91,11 @@ interface ExtendedProjectionConfig extends ProjectionConfig {
 // Default projection configuration
 const defaultConfig: ExtendedProjectionConfig = {
   acquisition: {
-    purchasePrice: 0,
-    closingCosts: 0,
-    rehabCosts: 0,
-    rehabDurationMonths: 0,
-    purchaseLoanAmount: 0,
+    purchasePrice: 100000, // Setting a default purchase price
+    closingCosts: 3000,
+    rehabCosts: 20000,
+    rehabDurationMonths: 2,
+    purchaseLoanAmount: 80000, // Setting a default loan amount (80% LTV)
     purchaseLoanRate: 0.07,
     purchaseLoanTermYears: 30,
     otherInitialCosts: 0,
@@ -588,12 +588,15 @@ export default function InvestmentCalculator() {
       {/* Deal selector and controls */}
       <div className="mb-8 flex flex-wrap justify-between gap-4">
         <div className="flex flex-wrap gap-2">
-          <button 
-            onClick={createNewDeal}
-            className="bg-grass text-white py-2 px-4 rounded-md hover:bg-grass/90 transition-colors font-medium shadow-sm"
-          >
-            New Deal
-          </button>
+          {/* Only show New Deal button when a strategy is selected */}
+          {selectedStrategy && (
+            <button 
+              onClick={createNewDeal}
+              className="bg-grass text-white py-2 px-4 rounded-md hover:bg-grass/90 transition-colors font-medium shadow-sm"
+            >
+              New Deal
+            </button>
+          )}
           
           {savedDeals.length > 0 && (
             <select 

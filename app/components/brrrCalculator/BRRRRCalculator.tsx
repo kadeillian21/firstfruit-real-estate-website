@@ -24,11 +24,11 @@ export type DealData = {
 // Default projection configuration
 const defaultConfig: ProjectionConfig = {
   acquisition: {
-    purchasePrice: 0,
-    closingCosts: 0,
-    rehabCosts: 0,
-    rehabDurationMonths: 0,
-    purchaseLoanAmount: 0,
+    purchasePrice: 100000, // Setting a default purchase price
+    closingCosts: 3000,
+    rehabCosts: 20000,
+    rehabDurationMonths: 2,
+    purchaseLoanAmount: 80000, // Setting a default loan amount (80% LTV)
     purchaseLoanRate: 0.07,
     purchaseLoanTermYears: 30,
     otherInitialCosts: 0,
