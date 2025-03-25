@@ -29,7 +29,17 @@ async function getOrCreateDefaultUser() {
 export async function POST(request: Request) {
   try {
     // Get the deal data from the request body
-    const dealData = await request.json();
+    let dealData;
+    try {
+      dealData = await request.json();
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError);
+      // Return a more detailed error message
+      return NextResponse.json({ 
+        error: `Failed to parse JSON: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`,
+        requestContentType: request.headers.get('content-type') 
+      }, { status: 400 });
+    }
     
     // Check if the deal data is valid
     if (!dealData || !dealData.id || !dealData.name) {
@@ -92,7 +102,11 @@ export async function POST(request: Request) {
     
   } catch (error) {
     console.error('Error saving deal:', error);
-    return NextResponse.json({ error: 'Failed to save deal' }, { status: 500 });
+    // Return a detailed error message
+    return NextResponse.json({ 
+      error: 'Failed to save deal', 
+      details: error instanceof Error ? error.message : String(error)
+    }, { status: 500 });
   }
 }
 

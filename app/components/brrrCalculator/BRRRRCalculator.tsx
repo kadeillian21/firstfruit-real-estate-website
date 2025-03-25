@@ -137,7 +137,13 @@ export default function BRRRRCalculator() {
   // Save deals to localStorage when savedDeals changes
   useEffect(() => {
     if (savedDeals.length > 0) {
-      localStorage.setItem('brrrDeals', JSON.stringify(savedDeals));
+      // Convert Date objects to ISO strings before serializing to localStorage
+      const dealsWithSerializedDates = savedDeals.map(deal => ({
+        ...deal,
+        createdAt: deal.createdAt instanceof Date ? deal.createdAt.toISOString() : deal.createdAt,
+        updatedAt: deal.updatedAt instanceof Date ? deal.updatedAt.toISOString() : deal.updatedAt
+      }));
+      localStorage.setItem('brrrDeals', JSON.stringify(dealsWithSerializedDates));
     }
   }, [savedDeals]);
 
@@ -192,18 +198,42 @@ export default function BRRRRCalculator() {
         setSavedDeals([...savedDeals, updatedDeal]);
       }
       
+      // Convert Date objects to ISO strings for proper JSON serialization
+      const dealToSave = {
+        ...updatedDeal,
+        createdAt: updatedDeal.createdAt.toISOString(),
+        updatedAt: updatedDeal.updatedAt.toISOString()
+      };
+      
+      // Prepare the JSON data
+      const jsonData = JSON.stringify(dealToSave);
+      
+      // Log the JSON string for debugging
+      console.log('Sending JSON to API:', jsonData.substring(0, 100) + '...');
+      
       // Save to database via API
       const response = await fetch('/api/deals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedDeal)
+        body: jsonData
       });
       
+      // Check if response is OK
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save deal to database');
+        // Attempt to parse error response
+        let errorMessage;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || `Server error: ${response.status}`;
+          console.error('Server error details:', errorData);
+        } catch (jsonError) {
+          // If response is not JSON
+          const textResponse = await response.text();
+          errorMessage = `Failed to parse error response. Status: ${response.status}, Content: ${textResponse.substring(0, 200)}`;
+        }
+        throw new Error(errorMessage);
       }
       
       const responseData = await response.json();
