@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DealData } from './BRRRRCalculator';
 import { 
   generateProjection, 
   ProjectionResult 
 } from '../../utils/brrrCalculator/projectionEngine';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface DealSummaryProps {
   dealData: DealData;
@@ -14,6 +16,9 @@ interface DealSummaryProps {
 export default function DealSummary({
   dealData,
 }: DealSummaryProps) {
+  // Ref for PDF export
+  const summaryRef = useRef<HTMLDivElement>(null);
+  
   // State for projection results
   const [projection, setProjection] = useState<ProjectionResult | null>(null);
   
@@ -25,6 +30,9 @@ export default function DealSummary({
   const [compareMonth, setCompareMonth] = useState<number>(
     Math.min(dealData.config.projectionMonths, 12)
   );
+  
+  // State for PDF generation
+  const [isExporting, setIsExporting] = useState<boolean>(false);
   
   // Generate projection when dealData changes
   useEffect(() => {
@@ -60,6 +68,107 @@ export default function DealSummary({
   const formatPercentage = (value: number): string => {
     return (value * 100).toFixed(2) + '%';
   };
+  
+  // Export to PDF function
+  const handleExportToPDF = async () => {
+    if (!summaryRef.current || !projection) return;
+    
+    setIsExporting(true);
+    
+    try {
+      // Create a date for the filename
+      const date = new Date().toISOString().split('T')[0];
+      const fileName = `${dealData.address || 'Deal'}-${date}.pdf`;
+      
+      // Create a new PDF document
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: 'a4',
+      });
+      
+      // Get page width and height
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      
+      // Add header with property info
+      doc.setFontSize(18);
+      doc.setTextColor(0, 0, 100); // Navy blue color
+      doc.text('Investment Deal Summary', 40, 40);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0); // Black
+      doc.text(`Property: ${dealData.address || 'Unnamed Property'}`, 40, 60);
+      doc.text(`Strategy: ${dealData.strategy}`, 40, 75);
+      doc.text(`Date: ${date}`, 40, 90);
+      
+      // Add a line
+      doc.setDrawColor(200, 200, 200);
+      doc.line(40, 100, pageWidth - 40, 100);
+      
+      // Use html2canvas to convert the summary to an image
+      const canvas = await html2canvas(summaryRef.current, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+      });
+      
+      // Calculate appropriate dimensions to fit on PDF
+      const imgWidth = pageWidth - 80; // 40px margins on each side
+      const ratio = canvas.width / imgWidth;
+      const imgHeight = canvas.height / ratio;
+      
+      // Split into multiple pages if needed
+      const contentHeight = pageHeight - 120; // Account for header
+      let remainingHeight = imgHeight;
+      let srcY = 0;
+      let destY = 120; // Start after header
+      
+      while (remainingHeight > 0) {
+        // Calculate height to use for current page
+        const chunkHeight = Math.min(remainingHeight, contentHeight);
+        
+        // Calculate the portion of canvas to use
+        const destHeight = chunkHeight;
+        const srcHeight = chunkHeight * ratio;
+        
+        // Convert the canvas to image data
+        const imgData = canvas.toDataURL('image/png');
+        
+        // Add image to current page
+        doc.addImage(
+          imgData,
+          'PNG',
+          40, // X position
+          destY, // Y position
+          imgWidth, // Width
+          destHeight, // Height
+          undefined, // Alias
+          'FAST', // Compression
+          0, // Rotation
+          srcY // Source Y (for cropping)
+        );
+        
+        remainingHeight -= chunkHeight;
+        srcY += srcHeight;
+        
+        // Add a new page if there's more content
+        if (remainingHeight > 0) {
+          doc.addPage();
+          destY = 40; // Reset Y position for new page
+        }
+      }
+      
+      // Save the PDF
+      doc.save(fileName);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Return loading state if projection not ready
   if (!projection) {
@@ -83,9 +192,34 @@ export default function DealSummary({
 
   return (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold mb-4">
-        Deal Summary: {dealData.name}
-      </h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-semibold">
+          Deal Summary: {dealData.name}
+        </h3>
+        
+        <button
+          onClick={handleExportToPDF}
+          disabled={isExporting}
+          data-export-pdf
+          className={`btn ${isExporting ? 'btn-disabled' : 'btn-primary'} flex items-center gap-2`}
+        >
+          {isExporting ? (
+            <>
+              <div className="animate-spin h-4 w-4 border-2 border-b-transparent rounded-full"></div>
+              Exporting...
+            </>
+          ) : (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Export PDF
+            </>
+          )}
+        </button>
+      </div>
+      
+      <div ref={summaryRef} className="space-y-6">
       
       {/* Key Metrics */}
       <div className="bg-gray-50 p-6 rounded-lg space-y-6">
@@ -501,6 +635,7 @@ export default function DealSummary({
               : 'You have not scheduled any refinance events.'}
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

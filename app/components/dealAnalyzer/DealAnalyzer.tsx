@@ -706,7 +706,7 @@ export default function DealAnalyzer() {
         </div>
         
         {selectedStrategy && (
-          <div>
+          <div className="flex space-x-2">
             <button 
               onClick={saveDeal}
               className="btn btn-primary flex items-center"
@@ -716,6 +716,25 @@ export default function DealAnalyzer() {
               </svg>
               Save Deal
             </button>
+            
+            {/* PDF Export button - only show if on summary step */}
+            {selectedStrategy && currentStep === (getStepsForStrategy().length - 1) && (
+              <button 
+                className="btn btn-secondary flex items-center"
+                onClick={() => {
+                  // Simply scrolls to the PDF export button in the DealSummary component
+                  const exportButton = document.querySelector('[data-export-pdf]');
+                  if (exportButton) {
+                    exportButton.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Export PDF
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -766,19 +785,42 @@ export default function DealAnalyzer() {
                 </div>
                 
                 <div className="mt-4 flex justify-between">
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      loadDeal(deal.id);
-                    }}
-                    className="btn btn-primary inline-flex items-center text-sm py-1.5"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    View
-                  </button>
+                  <div className="flex space-x-1">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        loadDeal(deal.id);
+                      }}
+                      className="btn btn-primary inline-flex items-center text-sm py-1.5"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      View
+                    </button>
+                    
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Load the deal and advance to summary step
+                        loadDeal(deal.id);
+                        // Wait for deal to load, then click export button
+                        setTimeout(() => {
+                          const exportButton = document.querySelector('[data-export-pdf]');
+                          if (exportButton) {
+                            exportButton.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }, 500);
+                      }}
+                      className="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded text-sm font-medium inline-flex items-center"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      PDF
+                    </button>
+                  </div>
                   
                   <button 
                     onClick={(e) => {
