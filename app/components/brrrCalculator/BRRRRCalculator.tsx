@@ -16,6 +16,7 @@ export type DealData = {
   id: string;
   name: string;
   address: string;
+  strategy?: string | 'brrrr' | 'longTermRental' | 'shortTermRental' | 'multifamily' | 'houseHack';
   createdAt: Date;
   updatedAt: Date;
   config: ProjectionConfig;

@@ -125,7 +125,6 @@ export default function DealSummary({
       // Split into multiple pages if needed
       const contentHeight = pageHeight - 120; // Account for header
       let remainingHeight = imgHeight;
-      let srcY = 0;
       let destY = 120; // Start after header
       
       while (remainingHeight > 0) {
@@ -134,7 +133,6 @@ export default function DealSummary({
         
         // Calculate the portion of canvas to use
         const destHeight = chunkHeight;
-        const srcHeight = chunkHeight * ratio;
         
         // Convert the canvas to image data
         const imgData = canvas.toDataURL('image/png');
@@ -150,11 +148,9 @@ export default function DealSummary({
           undefined, // Alias
           'FAST', // Compression
           0, // Rotation
-          srcY // Source Y (for cropping)
         );
         
         remainingHeight -= chunkHeight;
-        srcY += srcHeight;
         
         // Add a new page if there's more content
         if (remainingHeight > 0) {

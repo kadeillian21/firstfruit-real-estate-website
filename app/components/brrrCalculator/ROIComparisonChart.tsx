@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -53,7 +53,7 @@ export default function ROIComparisonChart({
   totalInvestment,
   monthlySnapshots
 }: ROIComparisonChartProps) {
-  const chartRef = useRef<ChartJS>(null);
+  const chartRef = useRef<ChartJS<'line'>>(null);
   const [selectedMonth, setSelectedMonth] = useState<number>(1);
   const [visibleBaselines, setVisibleBaselines] = useState<Record<string, boolean>>({
     SP500: true,
@@ -62,15 +62,10 @@ export default function ROIComparisonChart({
     GOLD: true,
     BONDS: false
   });
-
-  // Calculate years for projection
-  const years = Math.ceil(projectionMonths / 12);
   
   // Create labels for months or years
   const labels = Array.from({ length: projectionMonths }, (_, i) => `M${i + 1}`);
   
-//We use monthlySnapshots directly now
-
   // Calculate annualized return rates for alternative investments
   const calculateBaselineReturns = (month: number, annualizedReturn: number): number => {
     const yearsElapsed = (month + 1) / 12;
@@ -90,6 +85,7 @@ export default function ROIComparisonChart({
   };
 
   // Update selected month when user interacts with chart
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChartClick = (event: any) => {
     const chart = chartRef.current;
     if (!chart) return;
@@ -118,6 +114,7 @@ export default function ROIComparisonChart({
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
         tension: 0.1,
         borderWidth: 2,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         pointRadius: (ctx: any) => {
           const index = ctx.dataIndex;
           return index + 1 === selectedMonth ? 6 : 3;
@@ -126,6 +123,7 @@ export default function ROIComparisonChart({
       },
       ...Object.entries(BASELINE_INVESTMENTS)
         .filter(([key]) => visibleBaselines[key])
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .map(([key, baseline]) => ({
           label: baseline.label,
           data: monthlySnapshots.map((_, i) => 

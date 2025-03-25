@@ -1,11 +1,20 @@
 'use client';
 
 import React, { useState } from 'react';
-import { DealData } from './BRRRRCalculator';
 
+// Now supports both the BRRRR calculator and the deal analyzer
 interface PropertyInfoProps {
-  dealData: DealData;
-  updateDealData: (updates: Partial<DealData>) => void;
+  dealData: {
+    id: string;
+    name: string;
+    address: string;
+    strategy?: unknown;
+    createdAt: Date;
+    updatedAt: Date;
+    config: unknown;
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateDealData: (updates: any) => void;
 }
 
 export default function PropertyInfo({ dealData, updateDealData }: PropertyInfoProps) {
