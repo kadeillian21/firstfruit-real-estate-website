@@ -288,11 +288,32 @@ export default function DealAnalyzer() {
 
   // Update deal data
   const updateDealData = (updates: Partial<DealData>) => {
-    setDealData(prev => ({
-      ...prev,
-      ...updates,
-      updatedAt: new Date()
-    }));
+    // Prevent circular updates - this function should only be updating dealData state
+    // and not causing side effects that would trigger more state updates
+    setDealData(prev => {
+      // If the update includes changes to config.acquisition and config.purchasePrice,
+      // make sure we don't create a circular update loop
+      const newUpdates = { ...updates };
+      
+      if (newUpdates.config && 
+          newUpdates.config.acquisition && 
+          newUpdates.config.purchasePrice !== undefined && 
+          newUpdates.config.acquisition.purchasePrice === newUpdates.config.purchasePrice) {
+        // Don't update purchasePrice if it's the same as the acquisition.purchasePrice
+        // to avoid circular updates
+        const { ...restConfig } = newUpdates.config;
+        newUpdates.config = restConfig;
+      }
+      
+      // Create new object with updates applied
+      const newData = {
+        ...prev,
+        ...newUpdates,
+        updatedAt: new Date()
+      };
+      
+      return newData;
+    });
   };
 
   // Save the current deal
@@ -392,16 +413,20 @@ export default function DealAnalyzer() {
         return (
           <AcquisitionDetails 
             acquisition={dealData.config.acquisition} 
-            updateAcquisition={(acquisition) => 
-              updateDealData({ 
-                config: { 
-                  ...dealData.config, 
-                  acquisition,
-                  // Keep purchasePrice in sync for components that need it directly
-                  purchasePrice: acquisition.purchasePrice
-                } 
-              })
-            } 
+            updateAcquisition={(acquisition) => {
+              // Create a new config object without causing a circular update
+              const newConfig = { 
+                ...dealData.config,
+                acquisition
+              };
+              
+              // Only update purchasePrice if it has changed to avoid circular updates
+              if (newConfig.purchasePrice !== acquisition.purchasePrice) {
+                newConfig.purchasePrice = acquisition.purchasePrice;
+              }
+              
+              updateDealData({ config: newConfig });
+            }} 
           />
         );
       case 'projection':

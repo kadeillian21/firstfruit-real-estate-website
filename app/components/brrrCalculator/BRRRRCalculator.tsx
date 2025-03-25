@@ -228,7 +228,7 @@ export default function BRRRRCalculator() {
           const errorData = await response.json();
           errorMessage = errorData.error || `Server error: ${response.status}`;
           console.error('Server error details:', errorData);
-        } catch (jsonError) {
+        } catch {
           // If response is not JSON
           const textResponse = await response.text();
           errorMessage = `Failed to parse error response. Status: ${response.status}, Content: ${textResponse.substring(0, 200)}`;
