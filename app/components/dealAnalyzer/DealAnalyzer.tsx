@@ -185,7 +185,7 @@ const defaultConfig: ExtendedProjectionConfig = {
   purchasePrice: 0
 };
 
-export default function InvestmentCalculator() {
+export default function DealAnalyzer() {
   // State for the selected investment strategy
   const [selectedStrategy, setSelectedStrategy] = useState<InvestmentStrategy | null>(null);
   
@@ -195,7 +195,7 @@ export default function InvestmentCalculator() {
   // State for the deal data
   const [dealData, setDealData] = useState<DealData>({
     id: uuidv4(),
-    name: 'New Deal',
+    name: '',
     address: '',
     strategy: 'longTermRental',
     createdAt: new Date(),
@@ -205,6 +205,9 @@ export default function InvestmentCalculator() {
 
   // State for saved deals (would normally be in a database)
   const [savedDeals, setSavedDeals] = useState<DealData[]>([]);
+  
+  // State to control whether to show the saved deals grid
+  const [showSavedDeals, setShowSavedDeals] = useState(false);
 
   // Reset step when strategy changes
   useEffect(() => {
@@ -212,8 +215,7 @@ export default function InvestmentCalculator() {
       setCurrentStep(0);
       setDealData(prev => ({
         ...prev,
-        strategy: selectedStrategy,
-        name: `New ${getStrategyDisplayName(selectedStrategy)} Deal`
+        strategy: selectedStrategy
       }));
     }
   }, [selectedStrategy]);
@@ -294,26 +296,48 @@ export default function InvestmentCalculator() {
   };
 
   // Save the current deal
-  const saveDeal = () => {
-    const updatedDeal = {
-      ...dealData,
-      updatedAt: new Date()
-    };
-    
-    // Check if we're updating an existing deal or adding a new one
-    const existingDealIndex = savedDeals.findIndex(deal => deal.id === dealData.id);
-    
-    if (existingDealIndex >= 0) {
-      // Update existing deal
-      const updatedDeals = [...savedDeals];
-      updatedDeals[existingDealIndex] = updatedDeal;
-      setSavedDeals(updatedDeals);
-    } else {
-      // Add new deal
-      setSavedDeals([...savedDeals, updatedDeal]);
+  const saveDeal = async () => {
+    try {
+      const updatedDeal = {
+        ...dealData,
+        updatedAt: new Date()
+      };
+      
+      // Save to local storage for backup
+      const existingDealIndex = savedDeals.findIndex(deal => deal.id === dealData.id);
+      
+      if (existingDealIndex >= 0) {
+        // Update existing deal
+        const updatedDeals = [...savedDeals];
+        updatedDeals[existingDealIndex] = updatedDeal;
+        setSavedDeals(updatedDeals);
+      } else {
+        // Add new deal
+        setSavedDeals([...savedDeals, updatedDeal]);
+      }
+      
+      // Save to database via API
+      const response = await fetch('/api/deals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedDeal)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save deal to database');
+      }
+      
+      const responseData = await response.json();
+      console.log('Deal saved to database:', responseData);
+      
+      alert('Deal saved successfully!');
+    } catch (error) {
+      console.error('Error saving deal:', error);
+      alert(`Error saving deal: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-
-    alert('Deal saved successfully!');
   };
 
   // Create a new deal
@@ -328,7 +352,9 @@ export default function InvestmentCalculator() {
     if (dealToLoad) {
       setDealData(dealToLoad);
       setSelectedStrategy(dealToLoad.strategy);
-      setCurrentStep(0);
+      // Go directly to the summary (final) step
+      const steps = dealToLoad.strategy ? strategySteps[dealToLoad.strategy] : [];
+      setCurrentStep(steps.length - 1);
     }
   };
 
@@ -393,6 +419,25 @@ export default function InvestmentCalculator() {
                 config: { ...dealData.config, propertyValueChanges } 
               })
             }
+            rentChangeEvents={dealData.config.rentChangeEvents || []}
+            updateRentChangeEvents={(rentChangeEvents) => 
+              updateDealData({ 
+                config: { ...dealData.config, rentChangeEvents } 
+              })
+            }
+            expenseChangeEvents={dealData.config.expenseChangeEvents || []}
+            updateExpenseChangeEvents={(expenseChangeEvents) => 
+              updateDealData({ 
+                config: { ...dealData.config, expenseChangeEvents } 
+              })
+            }
+            initialMonthlyRent={dealData.config.operation.monthlyRent || 0}
+            annualExpenseAppreciationRate={dealData.config.expenseAppreciationRate || 0.02}
+            updateExpenseAppreciationRate={(rate) => 
+              updateDealData({ 
+                config: { ...dealData.config, expenseAppreciationRate: rate } 
+              })
+            }
           />
         );
       case 'summary':
@@ -417,12 +462,6 @@ export default function InvestmentCalculator() {
                   config: { ...dealData.config, acquisition } 
                 })
               }
-              capitalExpenses={dealData.config.capitalExpenseEvents || []}
-              updateCapitalExpenses={(capitalExpenseEvents) => 
-                updateDealData({ 
-                  config: { ...dealData.config, capitalExpenseEvents } 
-                })
-              }
             />
           );
         case 'rental':
@@ -444,6 +483,12 @@ export default function InvestmentCalculator() {
               updateExpenseChangeEvents={(expenseChangeEvents) => 
                 updateDealData({ 
                   config: { ...dealData.config, expenseChangeEvents } 
+                })
+              }
+              capitalExpenses={dealData.config.capitalExpenseEvents || []}
+              updateCapitalExpenses={(capitalExpenseEvents) => 
+                updateDealData({ 
+                  config: { ...dealData.config, capitalExpenseEvents } 
                 })
               }
             />
@@ -483,6 +528,12 @@ export default function InvestmentCalculator() {
               updateExpenseChangeEvents={(expenseChangeEvents) => 
                 updateDealData({ 
                   config: { ...dealData.config, expenseChangeEvents } 
+                })
+              }
+              capitalExpenses={dealData.config.capitalExpenseEvents || []}
+              updateCapitalExpenses={(capitalExpenseEvents) => 
+                updateDealData({ 
+                  config: { ...dealData.config, capitalExpenseEvents } 
                 })
               }
             />
@@ -550,6 +601,12 @@ export default function InvestmentCalculator() {
                   config: { ...dealData.config, expenseChangeEvents } 
                 })
               }
+              capitalExpenses={dealData.config.capitalExpenseEvents || []}
+              updateCapitalExpenses={(capitalExpenseEvents) => 
+                updateDealData({ 
+                  config: { ...dealData.config, capitalExpenseEvents } 
+                })
+              }
             />
           );
       }
@@ -588,7 +645,7 @@ export default function InvestmentCalculator() {
       {/* Deal selector and controls */}
       <div className="mb-8 flex flex-wrap justify-between gap-4">
         <div className="flex flex-wrap gap-2">
-          {/* Only show New Deal button when a strategy is selected */}
+          {/* Create New Deal button - only show if strategy is selected */}
           {selectedStrategy && (
             <button 
               onClick={createNewDeal}
@@ -598,19 +655,17 @@ export default function InvestmentCalculator() {
             </button>
           )}
           
+          {/* Deal Library Button - Toggle saved deals view */}
           {savedDeals.length > 0 && (
-            <select 
-              onChange={(e) => loadDeal(e.target.value)}
-              className="border border-gray-300 rounded-md py-2 px-4 text-gray-900 focus:ring-navy focus:border-navy"
-              value=""
+            <button
+              onClick={() => setShowSavedDeals(!showSavedDeals)}
+              className="bg-navy text-white py-2 px-4 rounded-md hover:bg-navy/90 transition-colors font-medium shadow-sm flex items-center"
             >
-              <option value="" disabled>Load saved deal</option>
-              {savedDeals.map(deal => (
-                <option key={deal.id} value={deal.id}>
-                  {getStrategyDisplayName(deal.strategy)}: {deal.name} - {deal.address}
-                </option>
-              ))}
-            </select>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              {showSavedDeals ? 'Hide Saved Deals' : 'View Saved Deals'}
+            </button>
           )}
         </div>
         
@@ -628,14 +683,78 @@ export default function InvestmentCalculator() {
           </div>
         )}
       </div>
+      
+      {/* Saved Deals Grid */}
+      {showSavedDeals && savedDeals.length > 0 && (
+        <div className="mb-8 bg-gray-50 p-4 rounded-lg">
+          <h2 className="text-xl font-semibold mb-4">Saved Deals</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {savedDeals.map(deal => (
+              <div 
+                key={deal.id} 
+                className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => loadDeal(deal.id)}
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold text-lg">{deal.address || "Untitled Deal"}</h3>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Last updated: {new Date(deal.updatedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-navy text-white">
+                    {getStrategyDisplayName(deal.strategy)}
+                  </span>
+                </div>
+                
+                {/* Quick stats if available */}
+                <div className="mt-3 pt-3 border-t border-gray-100 text-sm grid grid-cols-2 gap-2">
+                  {deal.config.purchasePrice ? (
+                    <div>
+                      <span className="text-gray-500">Purchase:</span> ${deal.config.purchasePrice.toLocaleString()}
+                    </div>
+                  ) : null}
+                  
+                  {deal.config.operation?.monthlyRent ? (
+                    <div>
+                      <span className="text-gray-500">Monthly Rent:</span> ${deal.config.operation.monthlyRent.toLocaleString()}
+                    </div>
+                  ) : null}
+                </div>
+                
+                <div className="mt-3 flex justify-between">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      loadDeal(deal.id);
+                    }}
+                    className="text-navy hover:text-navy/80 text-sm font-medium"
+                  >
+                    View Deal
+                  </button>
+                  
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteDeal(deal.id);
+                    }}
+                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Current deal info */}
       {selectedStrategy && (
         <div className="mb-8 border-b border-gray-200 pb-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{dealData.name}</h2>
-              {dealData.address && <p className="text-gray-900">{dealData.address}</p>}
+              <h2 className="text-2xl font-bold text-gray-900">{dealData.address || "New Deal"}</h2>
             </div>
             <div className="px-3 py-1.5 bg-navy text-white rounded-lg font-medium">
               {getStrategyDisplayName(dealData.strategy)}

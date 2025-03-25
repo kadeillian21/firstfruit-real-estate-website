@@ -1,4 +1,4 @@
-# BRRRR Real Estate Investment Calculator
+# BRRRR Real Estate Deal Analyzer
 
 This module provides a comprehensive set of utilities for analyzing BRRRR (Buy, Rehab, Rent, Refinance, Repeat) real estate investment deals. It allows investors to calculate returns and project financial outcomes based on different refinance timelines and market scenarios.
 

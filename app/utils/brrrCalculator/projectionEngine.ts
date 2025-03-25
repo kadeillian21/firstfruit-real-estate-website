@@ -102,6 +102,7 @@ export interface ProjectionConfig {
   acquisition: PropertyAcquisition;
   operation: PropertyOperation;
   projectionMonths: number;
+  annualExpenseAppreciationRate?: number;
   refinanceEvents?: RefinanceEvent[];
   propertyValueChanges?: PropertyValueChangeEvent[];
   rentChangeEvents?: RentChangeEvent[];
@@ -308,14 +309,66 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
       }
     }
     
-    // Check for property value change
+    // Apply global annual appreciation rate to property value (if it's a year anniversary)
+    if (currentMonth > 1 && currentMonth % 12 === 0) {
+      // Only apply to property value if no specific change event for this month
+      const valueChangeEvent = (config.propertyValueChanges || []).find(e => e.month === currentMonth);
+      if (!valueChangeEvent) {
+        // Get property appreciation rate (if available)
+        let appreciationRate = 0.03; // Default: 3%
+        
+        // Check if we have a stored rate from ProjectionSettings
+        if (config.propertyValueChanges && config.propertyValueChanges.length > 0) {
+          const rateEvent = config.propertyValueChanges.find(e => e.month === 0);
+          if (rateEvent && typeof rateEvent.newValue === 'number' && rateEvent.newValue > 0 && rateEvent.newValue < 1) {
+            // Use the stored rate value if it's a reasonable percentage (between 0 and 1)
+            appreciationRate = rateEvent.newValue;
+          }
+        }
+        
+        // Apply a single year's appreciation
+        propertyValue = Math.round(propertyValue * (1 + appreciationRate));
+        
+        eventDescription = `Property value increased to $${propertyValue.toLocaleString()} (annual appreciation)`;
+      }
+    }
+    
+    // Check for property value change from specific events
     const valueChangeEvent = (config.propertyValueChanges || []).find(e => e.month === currentMonth);
     if (valueChangeEvent) {
       propertyValue = valueChangeEvent.newValue;
       eventDescription = `Property value changed to $${valueChangeEvent.newValue.toLocaleString()}`;
     }
     
-    // Check for rent change
+    // Apply global annual rent increase (if it's a year anniversary)
+    if (currentMonth > 1 && currentMonth % 12 === 0) {
+      // Only apply if no specific rent change event for this month
+      const rentChangeEvent = (config.rentChangeEvents || []).find(e => e.month === currentMonth);
+      if (!rentChangeEvent) {
+        // Get rent increase rate (if available)
+        let increaseRate = 0.03; // Default: 3%
+        
+        // Check if we have a stored rate from ProjectionSettings
+        if (config.rentChangeEvents && config.rentChangeEvents.length > 0) {
+          const rateEvent = config.rentChangeEvents.find(e => e.month === 0);
+          if (rateEvent && typeof rateEvent.newRent === 'number' && rateEvent.newRent > 0 && rateEvent.newRent < 1) {
+            // Use the stored rate value if it's a reasonable percentage (between 0 and 1)
+            increaseRate = rateEvent.newRent;
+          }
+        }
+        
+        // Apply the rent increase
+        currentRent = Math.round(currentRent * (1 + increaseRate));
+        
+        // Update property management and vacancy based on new rent
+        currentExpenses.propertyManagement = currentRent * (config.operation.propertyManagement / 100);
+        currentExpenses.vacancyAllowance = currentRent * (config.operation.vacancyRate / 100);
+        
+        eventDescription = `Rent increased to $${currentRent.toLocaleString()} per month (annual increase)`;
+      }
+    }
+    
+    // Check for specific rent change event
     const rentChangeEvent = (config.rentChangeEvents || []).find(e => e.month === currentMonth);
     if (rentChangeEvent) {
       currentRent = rentChangeEvent.newRent;
@@ -326,7 +379,30 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
       eventDescription = `Rent changed to $${rentChangeEvent.newRent.toLocaleString()} per month`;
     }
     
-    // Check for expense changes
+    // Apply global expense appreciation rate to all expenses (if it's a year anniversary)
+    if (config.annualExpenseAppreciationRate && currentMonth > 1 && currentMonth % 12 === 0) {
+      // Apply to all expenses except mortgage and those with specific changes
+      const expenseChangeEvent = (config.expenseChangeEvents || []).find(e => e.month === currentMonth);
+      if (!expenseChangeEvent) {
+        // Skip mortgage when applying global increase
+        const currentMortgage = currentExpenses.mortgage;
+        
+        // Apply increase to all other expenses
+        Object.keys(currentExpenses).forEach(key => {
+          if (key !== 'mortgage') {
+            currentExpenses[key as keyof MonthlyExpenses] = 
+              currentExpenses[key as keyof MonthlyExpenses] * (1 + (config.annualExpenseAppreciationRate || 0.02));
+          }
+        });
+        
+        // Restore mortgage (as it doesn't get affected by inflation)
+        currentExpenses.mortgage = currentMortgage;
+        
+        eventDescription = `Operating expenses increased by ${((config.annualExpenseAppreciationRate || 0.02) * 100).toFixed(1)}% (annual increase)`;
+      }
+    }
+    
+    // Check for specific expense changes
     const expenseChangeEvent = (config.expenseChangeEvents || []).find(e => e.month === currentMonth);
     if (expenseChangeEvent) {
       currentExpenses[expenseChangeEvent.expenseType] = expenseChangeEvent.newAmount;

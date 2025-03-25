@@ -36,7 +36,7 @@ export default function Timeline({ steps, currentStep, onStepClick }: TimelinePr
           const isCurrent = index === currentStep;
           
           // Calculate percentage position for the bubble
-          const position = index === 0 ? 0 : index === steps.length - 1 ? 100 : (index / (steps.length - 1)) * 100;
+          // const position = index === 0 ? 0 : index === steps.length - 1 ? 100 : (index / (steps.length - 1)) * 100;
           
           return (
             <div 

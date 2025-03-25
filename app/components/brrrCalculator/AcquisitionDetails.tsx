@@ -21,10 +21,10 @@ export default function AcquisitionDetails({
       : 20
   );
   
-  
 
   // Helper to update a specific field
-  const updateField = (field: keyof PropertyAcquisition, value: number | boolean | Record<string, boolean> | undefined) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updateField = (field: keyof PropertyAcquisition, value: any) => {
     updateAcquisition({
       ...acquisition,
       [field]: value
@@ -45,15 +45,17 @@ export default function AcquisitionDetails({
     });
   };
 
-  // Calculate total acquisition costs (excluding the rehab costs and holding costs which are shown on rehab screen)
+  // Calculate total acquisition costs
   const totalAcquisitionCost = 
     acquisition.purchasePrice + 
     acquisition.closingCosts + 
+    acquisition.rehabCosts + 
     (acquisition.otherInitialCosts || 0);
 
-  // Calculate total cash needed at closing
+  // Calculate total cash needed
   const totalCashNeeded = downPaymentAmount + 
     acquisition.closingCosts + 
+    acquisition.rehabCosts + 
     (acquisition.otherInitialCosts || 0);
     
 
@@ -121,6 +123,7 @@ export default function AcquisitionDetails({
               placeholder={rehabDurationFocused ? "" : "2"}
               className="brrrr-input"
             />
+            <p className="text-xs text-gray-600 mt-1">Holding costs during rehab can be configured on the Rehab Details screen</p>
           </div>
           
           <div>
@@ -146,7 +149,7 @@ export default function AcquisitionDetails({
             <input
               type="checkbox"
               id="using-financing"
-              checked={acquisition.purchaseLoanAmount !== undefined}
+              checked={!!acquisition.purchaseLoanAmount}
               onChange={(e) => {
                 if (!e.target.checked) {
                   // Clear loan details if not using financing
@@ -243,19 +246,16 @@ export default function AcquisitionDetails({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p className="text-sm font-medium text-green-800">Purchase & Closing Costs</p>
+            <p className="text-sm font-medium text-green-800">Total Acquisition Cost</p>
             <p className="text-xl font-bold text-green-900">
               ${totalAcquisitionCost.toLocaleString()}
             </p>
           </div>
           
           <div>
-            <p className="text-sm font-medium text-green-800">Cash Needed at Closing</p>
+            <p className="text-sm font-medium text-green-800">Total Cash Needed at Closing</p>
             <p className="text-xl font-bold text-green-900">
               ${totalCashNeeded.toLocaleString()}
-            </p>
-            <p className="text-xs text-green-800 mt-1">
-              Rehab budget and holding costs are shown on the Rehab screen
             </p>
           </div>
         </div>

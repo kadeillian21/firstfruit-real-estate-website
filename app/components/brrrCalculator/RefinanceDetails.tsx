@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   PropertyAcquisition,
   RefinanceEvent 
@@ -28,56 +28,51 @@ export default function RefinanceDetails({
     acquisition.rehabCosts + 
     (acquisition.otherInitialCosts || 0);
   
-  // State for new refinance event
-  const [newRefinance, setNewRefinance] = useState<RefinanceEvent>({
+  // Initialize refinance data from existing event or defaults
+  const currentRefinance = refinanceEvents.length > 0 ? refinanceEvents[0] : {
     month: acquisition.rehabDurationMonths + 1,
     afterRepairValue: 0,
     refinanceLTV: 0.70,
     refinanceRate: 0.07,
     refinanceTermYears: 30,
     refinanceClosingCosts: 0
-  });
-
-  // Add a new refinance event
-  const addRefinanceEvent = () => {
-    if (newRefinance.afterRepairValue > 0) {
-      const updatedEvents = [
-        ...refinanceEvents,
-        { ...newRefinance }
-      ];
-      
-      // Sort by month
-      updatedEvents.sort((a, b) => a.month - b.month);
-      
-      updateRefinanceEvents(updatedEvents);
-      
-      // Reset form
-      setNewRefinance({
-        ...newRefinance,
-        month: newRefinance.month + 12, // Suggest another refinance in a year
-      });
-    }
   };
 
-  // Remove a refinance event
-  const removeRefinanceEvent = (index: number) => {
-    const updatedEvents = [...refinanceEvents];
-    updatedEvents.splice(index, 1);
-    updateRefinanceEvents(updatedEvents);
+  // State for refinance event (single event only)
+  const [refinanceData, setRefinanceData] = useState<RefinanceEvent>(currentRefinance);
+  
+  // Update local state when props change
+  useEffect(() => {
+    if (refinanceEvents.length > 0) {
+      setRefinanceData(refinanceEvents[0]);
+    }
+  }, [refinanceEvents]);
+
+  // Save refinance data immediately when changed
+  const updateRefinanceData = (updates: Partial<RefinanceEvent>) => {
+    const updatedData = { ...refinanceData, ...updates };
+    setRefinanceData(updatedData);
+    
+    // Always update with a single event
+    if (updatedData.afterRepairValue > 0) {
+      updateRefinanceEvents([updatedData]);
+    } else {
+      updateRefinanceEvents([]);
+    }
   };
 
   // Calculate minimum ARV needed for a successful BRRRR (getting all money back out)
   const minARV = calculateMinimumARV(
     totalInvestment,
-    newRefinance.refinanceLTV,
-    newRefinance.refinanceClosingCosts
+    refinanceData.refinanceLTV,
+    refinanceData.refinanceClosingCosts
   );
 
   // Calculate loan amount from current ARV
-  const potentialLoanAmount = Math.floor(newRefinance.afterRepairValue * newRefinance.refinanceLTV);
+  const potentialLoanAmount = Math.floor(refinanceData.afterRepairValue * refinanceData.refinanceLTV);
   
   // Calculate cash recouped
-  const cashRecouped = potentialLoanAmount - newRefinance.refinanceClosingCosts;
+  const cashRecouped = potentialLoanAmount - refinanceData.refinanceClosingCosts;
   
   // Calculate remaining investment
   const remainingInvestment = Math.max(0, totalInvestment - cashRecouped);
@@ -100,9 +95,8 @@ export default function RefinanceDetails({
             </label>
             <NumberInput
               min={acquisition.rehabDurationMonths + 1}
-              value={newRefinance.month}
-              onChange={(value) => setNewRefinance({
-                ...newRefinance,
+              value={refinanceData.month}
+              onChange={(value) => updateRefinanceData({
                 month: value
               })}
               className="w-full"
@@ -117,9 +111,8 @@ export default function RefinanceDetails({
               After Repair Value (ARV)
             </label>
             <CurrencyInput
-              value={newRefinance.afterRepairValue}
-              onChange={(value) => setNewRefinance({
-                ...newRefinance,
+              value={refinanceData.afterRepairValue}
+              onChange={(value) => updateRefinanceData({
                 afterRepairValue: value
               })}
             />
@@ -140,9 +133,8 @@ export default function RefinanceDetails({
               Loan-to-Value (LTV)
             </label>
             <PercentageInput
-              value={newRefinance.refinanceLTV}
-              onChange={(value) => setNewRefinance({
-                ...newRefinance,
+              value={refinanceData.refinanceLTV}
+              onChange={(value) => updateRefinanceData({
                 refinanceLTV: value
               })}
             />
@@ -156,9 +148,8 @@ export default function RefinanceDetails({
               Interest Rate
             </label>
             <PercentageInput
-              value={newRefinance.refinanceRate}
-              onChange={(value) => setNewRefinance({
-                ...newRefinance,
+              value={refinanceData.refinanceRate}
+              onChange={(value) => updateRefinanceData({
                 refinanceRate: value
               })}
             />
@@ -171,9 +162,8 @@ export default function RefinanceDetails({
             <NumberInput
               min={1}
               max={40}
-              value={newRefinance.refinanceTermYears}
-              onChange={(value) => setNewRefinance({
-                ...newRefinance,
+              value={refinanceData.refinanceTermYears}
+              onChange={(value) => updateRefinanceData({
                 refinanceTermYears: value
               })}
               className="w-full"
@@ -185,81 +175,14 @@ export default function RefinanceDetails({
               Closing Costs
             </label>
             <CurrencyInput
-              value={newRefinance.refinanceClosingCosts}
-              onChange={(value) => setNewRefinance({
-                ...newRefinance,
+              value={refinanceData.refinanceClosingCosts}
+              onChange={(value) => updateRefinanceData({
                 refinanceClosingCosts: value
               })}
             />
           </div>
         </div>
-        
-        <button
-          type="button"
-          onClick={addRefinanceEvent}
-          className="mt-4 py-2 px-4 bg-navy text-white rounded-md hover:bg-navy/80"
-        >
-          Add Refinance Event
-        </button>
       </div>
-      
-      {/* Scheduled Refinance Events */}
-      {refinanceEvents.length > 0 && (
-        <div className="bg-gray-50 p-6 rounded-lg space-y-4">
-          <h4 className="text-lg font-medium text-gray-800">Scheduled Refinance Events</h4>
-          
-          <div className="overflow-auto max-h-60">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
-                    Timeline
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
-                    ARV
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
-                    LTV
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium brrrr-table-header uppercase tracking-wider">
-                    Rate
-                  </th>
-                  <th className="px-4 py-2 text-xs font-medium brrrr-table-header uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {refinanceEvents.map((event, index) => (
-                  <tr key={index}>
-                    <td className="px-4 py-2 whitespace-nowrap brrrr-table-cell">
-                      Month {event.month} ({Math.floor(event.month/12)}y {event.month%12}m)
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap brrrr-table-cell">
-                      ${event.afterRepairValue.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap brrrr-table-cell">
-                      {(event.refinanceLTV * 100).toFixed(0)}%
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap brrrr-table-cell">
-                      {(event.refinanceRate * 100).toFixed(2)}%
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-right">
-                      <button
-                        type="button"
-                        onClick={() => removeRefinanceEvent(index)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
       
       {/* Refinance Analysis */}
       <div className="bg-blue-50 p-6 rounded-lg">
@@ -315,7 +238,7 @@ export default function RefinanceDetails({
               <div>
                 <p className="text-sm text-blue-700">ARV to Investment Ratio</p>
                 <p className="text-lg font-semibold text-blue-900">
-                  {(newRefinance.afterRepairValue / totalInvestment).toFixed(2)}x
+                  {(refinanceData.afterRepairValue / totalInvestment).toFixed(2)}x
                 </p>
                 <p className="text-xs text-blue-700">
                   Target: 1.4x or higher for successful BRRRR
@@ -330,7 +253,7 @@ export default function RefinanceDetails({
                 <p className="text-xs text-blue-700">
                   {isSuccessfulBRRRR 
                     ? "You'll recoup all of your initial investment!" 
-                    : `You&apos;ll still have $${remainingInvestment.toLocaleString()} invested`}
+                    : `You'll still have $${remainingInvestment.toLocaleString()} invested`}
                 </p>
               </div>
             </div>

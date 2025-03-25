@@ -94,7 +94,7 @@ export default function DealSummary({
       {/* Key Metrics */}
       <div className="bg-gray-50 p-6 rounded-lg space-y-6">
         <div className="flex justify-between items-center">
-          <h4 className="text-lg font-medium text-gray-800">Key Metrics</h4>
+          <h4 className="text-lg font-medium text-black">Key Metrics</h4>
           
           <div className="flex items-center gap-2">
             <button
@@ -123,11 +123,7 @@ export default function DealSummary({
           
           <div className="p-4 bg-white rounded-lg shadow">
             <p className="text-sm text-gray-500">Remaining Investment</p>
-            <p className={`text-xl font-bold ${
-              projection.summary.remainingInvestment <= 0 
-                ? 'text-green-600' 
-                : 'text-amber-600'
-            }`}>
+            <p className="text-xl font-bold text-black">
               ${projection.summary.remainingInvestment.toLocaleString()}
             </p>
           </div>
@@ -162,22 +158,14 @@ export default function DealSummary({
           
           <div className="p-4 bg-white rounded-lg shadow">
             <p className="text-sm text-gray-500">Average Monthly Cash Flow</p>
-            <p className={`text-xl font-bold ${
-              projection.summary.averageMonthlyCashFlow >= 0 
-                ? 'text-green-600' 
-                : 'text-red-600'
-            }`}>
+            <p className="text-xl font-bold text-black">
               ${projection.summary.averageMonthlyCashFlow.toFixed(2)}
             </p>
           </div>
           
           <div className="p-4 bg-white rounded-lg shadow">
             <p className="text-sm text-gray-500">BRRRR Status</p>
-            <p className={`text-xl font-bold ${
-              projection.summary.successfulBRRRR
-                ? 'text-green-600'
-                : 'text-amber-600'
-            }`}>
+            <p className="text-xl font-bold text-black">
               {projection.summary.successfulBRRRR ? 'Successful' : 'Partial'}
             </p>
           </div>
@@ -277,9 +265,7 @@ export default function DealSummary({
               
               <div className="flex justify-between border-b pb-2">
                 <span className="text-gray-600">Monthly Cash Flow</span>
-                <span className={`font-medium ${
-                  selectedSnapshot.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <span className="font-medium text-black">
                   ${selectedSnapshot.cashFlow.toFixed(2)}
                 </span>
               </div>
@@ -364,9 +350,7 @@ export default function DealSummary({
                 <div className="flex justify-between border-b pb-2">
                   <span className="text-gray-600">Monthly Cash Flow</span>
                   <div className="flex items-center">
-                    <span className={`font-medium ${
-                      compareSnapshot.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
+                    <span className="font-medium text-black">
                       ${compareSnapshot.cashFlow.toFixed(2)}
                     </span>
                     <span className="ml-2 text-xs text-gray-500">
@@ -404,58 +388,88 @@ export default function DealSummary({
       
       {/* Timeline View */}
       <div className="bg-gray-50 p-6 rounded-lg space-y-4">
-        <h4 className="text-lg font-medium text-gray-800">Timeline View</h4>
+        <h4 className="text-lg font-medium text-black">Timeline View</h4>
         
         <div className="overflow-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Month
+                <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
+                  Year
                 </th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Property Value
                 </th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Cash Flow
                 </th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Cumulative Cash Flow
                 </th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Equity
                 </th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
                   Event
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {projection.monthlySnapshots.map((snapshot, index) => {
-                // Show every month for the first year, then only every 12 months
-                if (index < 12 || index % 12 === 0 || snapshot.eventDescription) {
+                // Only show months that are at yearly intervals (month 12, 24, 36, etc.)
+                if (snapshot.month % 12 === 0) {
+                  const yearNumber = snapshot.month / 12;
                   return (
                     <tr key={index} className={snapshot.month === selectedMonth ? 'bg-blue-50' : ''}>
-                      <td className="px-4 py-2 whitespace-nowrap">
-                        {snapshot.month}
+                      <td className="px-4 py-2 whitespace-nowrap text-black font-medium">
+                        Year {yearNumber}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap">
+                      <td className="px-4 py-2 whitespace-nowrap text-black">
                         ${snapshot.propertyValue.toLocaleString()}
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap">
-                        <span className={snapshot.cashFlow >= 0 ? 'text-green-600' : 'text-red-600'}>
+                        <span className="text-black">
                           ${snapshot.cashFlow.toFixed(2)}
                         </span>
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap">
-                        <span className={snapshot.totalCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}>
+                        <span className="text-black">
                           ${snapshot.totalCashFlow.toFixed(2)}
                         </span>
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap">
+                      <td className="px-4 py-2 whitespace-nowrap text-black">
                         ${snapshot.equity.toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-4 py-2 whitespace-nowrap text-black">
+                        {snapshot.eventDescription || ''}
+                      </td>
+                    </tr>
+                  );
+                }
+                // Also show any month with a significant event (like refinance)
+                else if (snapshot.eventDescription && snapshot.eventDescription.includes('Refinanced')) {
+                  return (
+                    <tr key={index} className={snapshot.month === selectedMonth ? 'bg-blue-50' : ''}>
+                      <td className="px-4 py-2 whitespace-nowrap text-black font-medium">
+                        Month {snapshot.month}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-black">
+                        ${snapshot.propertyValue.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap">
+                        <span className="text-black">
+                          ${snapshot.cashFlow.toFixed(2)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap">
+                        <span className="text-black">
+                          ${snapshot.totalCashFlow.toFixed(2)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-black">
+                        ${snapshot.equity.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-black font-medium">
                         {snapshot.eventDescription || ''}
                       </td>
                     </tr>
@@ -470,17 +484,17 @@ export default function DealSummary({
       
       {/* Final Analysis */}
       <div className="bg-blue-50 p-6 rounded-lg">
-        <h4 className="text-lg font-medium text-blue-800 mb-4">Final Analysis</h4>
+        <h4 className="text-lg font-medium text-black mb-4">Final Analysis</h4>
         
         <div className="space-y-4">
-          <p className="text-blue-700">
+          <p className="text-black">
             <strong>BRRRR Status:</strong>{' '}
             {projection.summary.successfulBRRRR 
               ? 'This deal successfully recycles your capital, allowing you to reinvest in your next property.' 
               : 'This is a partial BRRRR deal. You will still have some capital invested in the property.'}
           </p>
           
-          <p className="text-blue-700">
+          <p className="text-black">
             <strong>Cash Flow:</strong>{' '}
             {projection.summary.averageMonthlyCashFlow >= 300
               ? 'This deal has strong cash flow - it should provide good monthly income.'
@@ -491,7 +505,7 @@ export default function DealSummary({
               : 'This deal has negative cash flow - you may need to contribute additional funds.'}
           </p>
           
-          <p className="text-blue-700">
+          <p className="text-black">
             <strong>Return on Investment:</strong>{' '}
             {projection.summary.internalRateOfReturn >= 0.15
               ? 'This deal has an excellent IRR of ' + formatPercentage(projection.summary.internalRateOfReturn) + '.'

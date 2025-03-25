@@ -9,7 +9,6 @@ interface PropertyInfoProps {
 }
 
 export default function PropertyInfo({ dealData, updateDealData }: PropertyInfoProps) {
-  const [dealNameFocused, setDealNameFocused] = useState(false);
   const [addressFocused, setAddressFocused] = useState(false);
   
   return (
@@ -18,26 +17,10 @@ export default function PropertyInfo({ dealData, updateDealData }: PropertyInfoP
       
       <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
         <p className="brrrr-description mb-4">
-          Start by giving your BRRRR deal a name and adding the property address.
+          Start by entering the property address.
         </p>
         
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="dealName" className="brrrr-label">
-              Deal Name
-            </label>
-            <input
-              type="text"
-              id="dealName"
-              value={dealData.name}
-              onChange={(e) => updateDealData({ name: e.target.value })}
-              onFocus={() => setDealNameFocused(true)}
-              onBlur={() => setDealNameFocused(false)}
-              className="brrrr-input"
-              placeholder={dealNameFocused || dealData.name !== 'New BRRRR Deal' ? '' : 'e.g., Main Street Duplex'}
-            />
-          </div>
-          
+        <div className="space-y-4">          
           <div>
             <label htmlFor="propertyAddress" className="brrrr-label">
               Property Address
@@ -46,7 +29,13 @@ export default function PropertyInfo({ dealData, updateDealData }: PropertyInfoP
               type="text"
               id="propertyAddress"
               value={dealData.address}
-              onChange={(e) => updateDealData({ address: e.target.value })}
+              onChange={(e) => {
+                // Update both the address and the name (using address as name)
+                updateDealData({ 
+                  address: e.target.value,
+                  name: e.target.value 
+                });
+              }}
               onFocus={() => setAddressFocused(true)}
               onBlur={() => setAddressFocused(false)}
               className="brrrr-input"

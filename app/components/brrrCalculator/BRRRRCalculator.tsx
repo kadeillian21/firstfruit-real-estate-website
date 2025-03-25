@@ -24,41 +24,66 @@ export type DealData = {
 // Default projection configuration
 const defaultConfig: ProjectionConfig = {
   acquisition: {
-    purchasePrice: 100000, // Setting a default purchase price
+    purchasePrice: 100000,
     closingCosts: 3000,
-    rehabCosts: 20000,
+    rehabCosts: 25000,
     rehabDurationMonths: 2,
-    purchaseLoanAmount: 80000, // Setting a default loan amount (80% LTV)
-    purchaseLoanRate: 0.07,
+    purchaseLoanAmount: 75000,
+    purchaseLoanRate: 0.06,
     purchaseLoanTermYears: 30,
-    otherInitialCosts: 0,
+    otherInitialCosts: 2000,
     includeHoldingCosts: {
       mortgage: true,
       taxes: true,
       insurance: true,
-      maintenance: true,
+      maintenance: false,
       propertyManagement: false,
       utilities: true,
       other: false
     }
   },
   operation: {
-    monthlyRent: 0,
+    monthlyRent: 1200,
     otherMonthlyIncome: 0,
-    propertyTaxes: 0,
-    insurance: 0,
-    maintenance: 0,
-    propertyManagement: 8, // percentage
+    propertyTaxes: 1800,
+    insurance: 1200,
+    maintenance: 100,
+    propertyManagement: 10, // percentage
     utilities: 0,
     vacancyRate: 5, // percentage
-    otherExpenses: 0
+    otherExpenses: 50
   },
   projectionMonths: 60,
-  refinanceEvents: [],
+  annualExpenseAppreciationRate: 0.02, // 2% default for expense growth
+  refinanceEvents: [
+    {
+      month: 3,
+      afterRepairValue: 150000,
+      refinanceLTV: 0.75,
+      refinanceRate: 0.05,
+      refinanceTermYears: 30,
+      refinanceClosingCosts: 3500
+    }
+  ],
   propertyValueChanges: [],
   rentChangeEvents: [],
   expenseChangeEvents: [],
-  capitalExpenseEvents: []
+  capitalExpenseEvents: [
+    {
+      component: "Roof",
+      lifespan: 25,
+      replacementCost: 12000,
+      lastReplaced: 15,
+      monthlyBudget: 40
+    },
+    {
+      component: "HVAC",
+      lifespan: 15,
+      replacementCost: 8000,
+      lastReplaced: 10,
+      monthlyBudget: 44.44
+    }
+  ]
 };
 
 // Steps in the BRRRR calculator process
@@ -96,10 +121,11 @@ export default function BRRRRCalculator() {
       try {
         const parsed = JSON.parse(savedDealsJSON);
         // Convert string dates back to Date objects
-        const parsedWithDates = parsed.map((deal: Record<string, unknown>) => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const parsedWithDates = parsed.map((deal: any) => ({
           ...deal,
-          createdAt: new Date(String(deal.createdAt)),
-          updatedAt: new Date(String(deal.updatedAt))
+          createdAt: new Date(deal.createdAt),
+          updatedAt: new Date(deal.updatedAt)
         }));
         setSavedDeals(parsedWithDates);
       } catch (error) {
@@ -146,26 +172,48 @@ export default function BRRRRCalculator() {
   };
 
   // Save the current deal
-  const saveDeal = () => {
-    const updatedDeal = {
-      ...dealData,
-      updatedAt: new Date()
-    };
-    
-    // Check if we're updating an existing deal or adding a new one
-    const existingDealIndex = savedDeals.findIndex(deal => deal.id === dealData.id);
-    
-    if (existingDealIndex >= 0) {
-      // Update existing deal
-      const updatedDeals = [...savedDeals];
-      updatedDeals[existingDealIndex] = updatedDeal;
-      setSavedDeals(updatedDeals);
-    } else {
-      // Add new deal
-      setSavedDeals([...savedDeals, updatedDeal]);
+  const saveDeal = async () => {
+    try {
+      const updatedDeal = {
+        ...dealData,
+        updatedAt: new Date()
+      };
+      
+      // Save to local storage for backup
+      const existingDealIndex = savedDeals.findIndex(deal => deal.id === dealData.id);
+      
+      if (existingDealIndex >= 0) {
+        // Update existing deal
+        const updatedDeals = [...savedDeals];
+        updatedDeals[existingDealIndex] = updatedDeal;
+        setSavedDeals(updatedDeals);
+      } else {
+        // Add new deal
+        setSavedDeals([...savedDeals, updatedDeal]);
+      }
+      
+      // Save to database via API
+      const response = await fetch('/api/deals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedDeal)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save deal to database');
+      }
+      
+      const responseData = await response.json();
+      console.log('Deal saved to database:', responseData);
+      
+      alert('Deal saved successfully!');
+    } catch (error) {
+      console.error('Error saving deal:', error);
+      alert(`Error saving deal: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-
-    alert('Deal saved successfully!');
   };
 
   // Create a new deal
@@ -186,7 +234,8 @@ export default function BRRRRCalculator() {
     const dealToLoad = savedDeals.find(deal => deal.id === dealId);
     if (dealToLoad) {
       setDealData(dealToLoad);
-      setCurrentStep(0);
+      // Go to the summary step (last step) when loading a deal
+      setCurrentStep(steps.length - 1);
     }
   };
 
@@ -290,6 +339,26 @@ export default function BRRRRCalculator() {
                 config: { ...dealData.config, propertyValueChanges } 
               })
             }
+            rentChangeEvents={dealData.config.rentChangeEvents || []}
+            updateRentChangeEvents={(rentChangeEvents) => 
+              updateDealData({ 
+                config: { ...dealData.config, rentChangeEvents } 
+              })
+            }
+            expenseChangeEvents={dealData.config.expenseChangeEvents || []}
+            updateExpenseChangeEvents={(expenseChangeEvents) => 
+              updateDealData({ 
+                config: { ...dealData.config, expenseChangeEvents } 
+              })
+            }
+            initialMonthlyRent={dealData.config.operation.monthlyRent}
+            annualExpenseAppreciationRate={dealData.config.annualExpenseAppreciationRate || 0.02}
+            updateExpenseAppreciationRate={(annualExpenseAppreciationRate) => 
+              updateDealData({ 
+                config: { ...dealData.config, annualExpenseAppreciationRate } 
+              })
+            }
+            refinanceEvents={dealData.config.refinanceEvents || []}
           />
         );
       case 'summary':

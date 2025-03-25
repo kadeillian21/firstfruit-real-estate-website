@@ -36,8 +36,8 @@ export function Navbar() {
             </Link>
           </li>
           <li className="relative group">
-            <Link href="/investment-calculator" className="hover:opacity-80 transition-colors flex items-center">
-              Investment Calculator
+            <Link href="/deal-analyzer" className="hover:opacity-80 transition-colors flex items-center">
+              Deal Analyzer
             </Link>
           </li>
           <li>
