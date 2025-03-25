@@ -59,7 +59,7 @@ export default function PropertyInfo({ dealData, updateDealData }: PropertyInfoP
       <div className="bg-blue-50 p-6 rounded-lg shadow-sm border border-blue-100">
         <h4 className="font-medium text-blue-900 mb-2">What is the BRRRR strategy?</h4>
         <p className="text-blue-800 mb-2">
-          BRRRR stands for <strong>Buy, Rehab, Rent, Refinance, Repeat</strong>. It's a real estate investing strategy that allows you to build a rental portfolio with limited capital.
+          BRRRR stands for <strong>Buy, Rehab, Rent, Refinance, Repeat</strong>. It&apos;s a real estate investing strategy that allows you to build a rental portfolio with limited capital.
         </p>
         <ul className="list-disc list-inside text-blue-800 space-y-1">
           <li><strong>Buy</strong> - Purchase a property below market value</li>

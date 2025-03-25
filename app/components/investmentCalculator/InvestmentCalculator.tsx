@@ -225,10 +225,10 @@ export default function InvestmentCalculator() {
       try {
         const parsed = JSON.parse(savedDealsJSON);
         // Convert string dates back to Date objects
-        const parsedWithDates = parsed.map((deal: any) => ({
+        const parsedWithDates = parsed.map((deal: Record<string, unknown>) => ({
           ...deal,
-          createdAt: new Date(deal.createdAt),
-          updatedAt: new Date(deal.updatedAt)
+          createdAt: new Date(String(deal.createdAt)),
+          updatedAt: new Date(String(deal.updatedAt))
         }));
         setSavedDeals(parsedWithDates);
       } catch (error) {

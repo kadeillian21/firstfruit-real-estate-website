@@ -65,7 +65,7 @@ export default function RentalDetails({
   });
 
   // Helper to update a specific field
-  const updateField = (field: keyof PropertyOperation, value: any) => {
+  const updateField = (field: keyof PropertyOperation, value: number) => {
     updateOperation({
       ...operation,
       [field]: value

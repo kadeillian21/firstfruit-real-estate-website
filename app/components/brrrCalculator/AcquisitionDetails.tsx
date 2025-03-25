@@ -44,7 +44,7 @@ export default function AcquisitionDetails({
   });
 
   // Helper to update a specific field
-  const updateField = (field: keyof PropertyAcquisition, value: any) => {
+  const updateField = (field: keyof PropertyAcquisition, value: number | boolean | Record<string, boolean> | undefined) => {
     updateAcquisition({
       ...acquisition,
       [field]: value
@@ -306,7 +306,7 @@ export default function AcquisitionDetails({
         </div>
         
         <p className="text-sm text-amber-800 mb-3">
-          Select which expenses you'll have during the rehab period:
+          Select which expenses you&apos;ll have during the rehab period:
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -406,7 +406,7 @@ export default function AcquisitionDetails({
         
         <div className="mt-2 p-3 bg-amber-100 rounded-md text-amber-800 text-sm">
           <p className="font-medium">Pro Tip:</p>
-          <p>Holding costs during rehab can significantly impact your returns. Be sure to account for all expenses you'll incur while the property isn't generating income.</p>
+          <p>Holding costs during rehab can significantly impact your returns. Be sure to account for all expenses you&apos;ll incur while the property isn&apos;t generating income.</p>
           <p className="mt-1"><span className="font-medium">Note:</span> Vacancy costs are not included here since the property is already vacant during rehab.</p>
         </div>
       </div>

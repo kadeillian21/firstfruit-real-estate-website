@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import CurrencyInput from '../brrrCalculator/ui/CurrencyInput';
 import PercentageInput from '../brrrCalculator/ui/PercentageInput';
 import { STRIncome } from './ShortTermRentalIncome';

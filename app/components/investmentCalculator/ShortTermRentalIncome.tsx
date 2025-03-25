@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import CurrencyInput from '../brrrCalculator/ui/CurrencyInput';
 import PercentageInput from '../brrrCalculator/ui/PercentageInput';
-import NumberInput from '../brrrCalculator/ui/NumberInput';
+// NumberInput is imported but not used
+// import NumberInput from '../brrrCalculator/ui/NumberInput';
 
 // Define interface for new STR Income structure
 export interface STRIncome {
@@ -250,20 +251,24 @@ export default function ShortTermRentalIncome({
             
             let bgColor = 'bg-gray-200';
             let textColor = 'text-gray-700';
-            let season: 'peak' | 'mid' | 'low' = 'low';
+            // Variable declared but not used
+            // let season: 'peak' | 'mid' | 'low' = 'low';
             
             if (isPeak) {
               bgColor = 'bg-red-100';
               textColor = 'text-red-800';
-              season = 'peak';
+              // season variable is not used
+              // season = 'peak';
             } else if (isMid) {
               bgColor = 'bg-yellow-100';
               textColor = 'text-yellow-800';
-              season = 'mid';
+              // season variable is not used
+              // season = 'mid';
             } else if (isLow) {
               bgColor = 'bg-blue-100';
               textColor = 'text-blue-800';
-              season = 'low';
+              // season variable is not used
+              // season = 'low';
             }
             
             return (

@@ -117,7 +117,7 @@ export default function HouseHackDetails({
   };
 
   // Update a specific rental unit
-  const updateRentalUnit = (id: string, field: keyof RentalUnit, value: any) => {
+  const updateRentalUnit = (id: string, field: keyof RentalUnit, value: number | string) => {
     const updatedUnits = houseHack.rentalUnits.map(unit => {
       if (unit.id === id) {
         return {
@@ -199,13 +199,14 @@ export default function HouseHackDetails({
     const futureOwnerUnitIncome = houseHack.ownerUnit.marketRent * (houseHack.ownerUnit.occupancyRate || 95) / 100;
     
     // Calculate future property value
-    const futurePropertyValue = houseHack.purchasePrice * (1 + (houseHack.futurePropertyValueChange / 100));
+    const purchasePrice = houseHack.purchasePrice || 0;
+    const futurePropertyValue = purchasePrice * (1 + (houseHack.futurePropertyValueChange / 100));
     
     // Selling costs (est. 6% of sale price)
     const sellingCosts = futurePropertyValue * 0.06;
     
     // Calculate equity gain
-    const equityGain = futurePropertyValue - houseHack.purchasePrice - sellingCosts;
+    const equityGain = futurePropertyValue - purchasePrice - sellingCosts;
     
     return {
       monthlyValueOfStaying,
@@ -238,7 +239,7 @@ export default function HouseHackDetails({
               onChange={(value) => updateField('currentHousingCost', value)}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Rent or mortgage you're currently paying
+              Rent or mortgage you&apos;re currently paying
             </p>
           </div>
         </div>
@@ -566,7 +567,7 @@ export default function HouseHackDetails({
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-purple-800 mb-2">
-              What's your plan after the first year?
+              What&apos;s your plan after the first year?
             </label>
             <div className="flex flex-wrap gap-3">
               <button
@@ -654,7 +655,7 @@ export default function HouseHackDetails({
               </div>
               
               <div className="flex justify-between items-center">
-                <span className="text-gray-700">Your Unit "Rent" Cost:</span>
+                <span className="text-gray-700">Your Unit &quot;Rent&quot; Cost:</span>
                 <span className="text-lg font-medium text-gray-900">
                   ${Math.round(financials.ownerUnitPersonalCost).toLocaleString()}
                 </span>
@@ -690,7 +691,7 @@ export default function HouseHackDetails({
               
               <div className="bg-green-100 p-3 rounded-md">
                 <span className="text-sm text-green-800">
-                  Compared to your current housing costs, you're saving 
+                  Compared to your current housing costs, you&apos;re saving 
                   <span className="font-bold"> {Math.round(financials.percentSavings)}% </span> 
                   with this house hack!
                 </span>
@@ -780,13 +781,13 @@ export default function HouseHackDetails({
                   <div className="flex justify-between">
                     <span className="text-purple-700">Potential Equity Gain:</span>
                     <span className="font-semibold text-purple-800">
-                      ${Math.round(houseHack.purchasePrice * (houseHack.futurePropertyValueChange / 100)).toLocaleString()}
+                      ${Math.round((houseHack.purchasePrice || 0) * (houseHack.futurePropertyValueChange / 100)).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between pt-1 border-t border-purple-200">
                     <span className="font-medium text-purple-800">Total First Year Benefit:</span>
                     <span className="font-bold text-purple-800">
-                      ${Math.round((financials.housingCostSavings * 12) + (houseHack.purchasePrice * (houseHack.futurePropertyValueChange / 100))).toLocaleString()}
+                      ${Math.round((financials.housingCostSavings * 12) + ((houseHack.purchasePrice || 0) * (houseHack.futurePropertyValueChange / 100))).toLocaleString()}
                     </span>
                   </div>
                 </div>

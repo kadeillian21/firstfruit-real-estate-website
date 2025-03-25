@@ -33,7 +33,7 @@ export default function RehabDetails({
   });
 
   // Helper to update a specific field in acquisition
-  const updateField = (field: keyof PropertyAcquisition, value: any) => {
+  const updateField = (field: keyof PropertyAcquisition, value: number | undefined) => {
     updateAcquisition({
       ...acquisition,
       [field]: value
@@ -123,7 +123,7 @@ export default function RehabDetails({
         <div className="mt-2">
           <p className="text-sm text-gray-600">
             During the rehab period, the property will not generate rental income,
-            but you'll still have expenses such as property taxes, insurance, and possibly loan payments.
+            but you&apos;ll still have expenses such as property taxes, insurance, and possibly loan payments.
           </p>
         </div>
       </div>

@@ -329,8 +329,8 @@ export default function RefinanceDetails({
                 </p>
                 <p className="text-xs text-blue-700">
                   {isSuccessfulBRRRR 
-                    ? 'You\'ll recoup all of your initial investment!' 
-                    : `You'll still have $${remainingInvestment.toLocaleString()} invested`}
+                    ? "You'll recoup all of your initial investment!" 
+                    : `You&apos;ll still have $${remainingInvestment.toLocaleString()} invested`}
                 </p>
               </div>
             </div>
@@ -344,7 +344,7 @@ export default function RefinanceDetails({
         
         <ul className="list-disc list-inside text-amber-700 space-y-1">
           <li>Consider waiting 6-12 months after purchase to refinance (seasoning)</li>
-          <li>Aim for an ARV that's at least 1.4x your total investment</li>
+          <li>Aim for an ARV that&apos;s at least 1.4x your total investment</li>
           <li>Compare different refinancing timelines to optimize your returns</li>
           <li>A successful BRRRR lets you recycle your capital into the next deal</li>
           <li>Even a partial BRRRR can be successful if your cash-on-cash return is strong</li>

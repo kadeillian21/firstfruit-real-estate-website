@@ -77,7 +77,7 @@ export default function MultiFamilyUnits({
   };
 
   // Update a unit field
-  const updateUnit = (id: string, field: keyof RentalUnit, value: any) => {
+  const updateUnit = (id: string, field: keyof RentalUnit, value: number | string) => {
     const updatedUnits = units.map(unit => {
       if (unit.id === id) {
         return {

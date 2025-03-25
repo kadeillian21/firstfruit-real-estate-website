@@ -163,7 +163,7 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
   // Initialize tracking variables
   let currentMonth = 1;
   let propertyValue = config.acquisition.purchasePrice;
-  let totalInvestment = 
+  const totalInvestment = 
     config.acquisition.purchasePrice + 
     config.acquisition.closingCosts + 
     config.acquisition.rehabCosts +
