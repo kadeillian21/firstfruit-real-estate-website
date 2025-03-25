@@ -668,16 +668,25 @@ export default function DealAnalyzer() {
   const steps = selectedStrategy ? getStepsForStrategy() : [];
 
   return (
-    <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-100">
+    <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
+      {/* Header section with title */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Investment Deal Analyzer</h1>
+        <p className="text-gray-600 mt-2">Create, analyze, and save your real estate investment deals</p>
+      </div>
+      
       {/* Deal selector and controls */}
-      <div className="mb-8 flex flex-wrap justify-between gap-4">
-        <div className="flex flex-wrap gap-2">
+      <div className="mb-8 flex flex-wrap justify-between gap-4 bg-gray-50 p-5 rounded-xl">
+        <div className="flex flex-wrap gap-3">
           {/* Create New Deal button - only show if strategy is selected */}
           {selectedStrategy && (
             <button 
               onClick={createNewDeal}
-              className="bg-grass text-white py-2 px-4 rounded-md hover:bg-grass/90 transition-colors font-medium shadow-sm"
+              className="btn btn-success flex items-center"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
               New Deal
             </button>
           )}
@@ -686,9 +695,9 @@ export default function DealAnalyzer() {
           {savedDeals.length > 0 && (
             <button
               onClick={() => setShowSavedDeals(!showSavedDeals)}
-              className="bg-navy text-white py-2 px-4 rounded-md hover:bg-navy/90 transition-colors font-medium shadow-sm flex items-center"
+              className="btn btn-secondary flex items-center"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
               {showSavedDeals ? 'Hide Saved Deals' : 'View Saved Deals'}
@@ -700,9 +709,9 @@ export default function DealAnalyzer() {
           <div>
             <button 
               onClick={saveDeal}
-              className="bg-navy text-white py-2 px-4 rounded-md hover:bg-navy/90 transition-colors font-medium shadow-sm flex items-center"
+              className="btn btn-primary flex items-center"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
               </svg>
               Save Deal
@@ -713,51 +722,62 @@ export default function DealAnalyzer() {
       
       {/* Saved Deals Grid */}
       {showSavedDeals && savedDeals.length > 0 && (
-        <div className="mb-8 bg-gray-50 p-4 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Saved Deals</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="mb-8 bg-white p-6 rounded-xl shadow-md border border-gray-100">
+          <h2 className="text-2xl font-bold text-navy mb-6 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            Saved Deals
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {savedDeals.map(deal => (
               <div 
                 key={deal.id} 
-                className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow cursor-pointer"
+                className="card card-hover p-5 cursor-pointer bg-white border-l-4 border-l-navy"
                 onClick={() => loadDeal(deal.id)}
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-lg">{deal.address || "Untitled Deal"}</h3>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Last updated: {new Date(deal.updatedAt).toLocaleDateString()}
+                    <h3 className="font-bold text-xl text-gray-900">{deal.address || "Untitled Deal"}</h3>
+                    <p className="text-xs text-navy/70 mt-1 font-medium">
+                      Updated: {new Date(deal.updatedAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-navy text-white">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-navy text-white shadow-sm">
                     {getStrategyDisplayName(deal.strategy)}
                   </span>
                 </div>
                 
                 {/* Quick stats if available */}
-                <div className="mt-3 pt-3 border-t border-gray-100 text-sm grid grid-cols-2 gap-2">
+                <div className="mt-4 pt-3 border-t border-gray-100 text-sm grid grid-cols-2 gap-3">
                   {deal.config.purchasePrice ? (
-                    <div>
-                      <span className="text-gray-500">Purchase:</span> ${deal.config.purchasePrice.toLocaleString()}
+                    <div className="flex flex-col">
+                      <span className="text-navy/70 font-medium">Purchase Price</span> 
+                      <span className="font-bold text-gray-900">${deal.config.purchasePrice.toLocaleString()}</span>
                     </div>
                   ) : null}
                   
                   {deal.config.operation?.monthlyRent ? (
-                    <div>
-                      <span className="text-gray-500">Monthly Rent:</span> ${deal.config.operation.monthlyRent.toLocaleString()}
+                    <div className="flex flex-col">
+                      <span className="text-navy/70 font-medium">Monthly Rent</span>
+                      <span className="font-bold text-gray-900">${deal.config.operation.monthlyRent.toLocaleString()}</span>
                     </div>
                   ) : null}
                 </div>
                 
-                <div className="mt-3 flex justify-between">
+                <div className="mt-4 flex justify-between">
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
                       loadDeal(deal.id);
                     }}
-                    className="text-navy hover:text-navy/80 text-sm font-medium"
+                    className="btn btn-primary inline-flex items-center text-sm py-1.5"
                   >
-                    View Deal
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    View
                   </button>
                   
                   <button 
@@ -765,8 +785,11 @@ export default function DealAnalyzer() {
                       e.stopPropagation();
                       deleteDeal(deal.id);
                     }}
-                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                    className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded text-sm font-medium inline-flex items-center"
                   >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                     Delete
                   </button>
                 </div>
@@ -778,12 +801,16 @@ export default function DealAnalyzer() {
 
       {/* Current deal info */}
       {selectedStrategy && (
-        <div className="mb-8 border-b border-gray-200 pb-4">
+        <div className="mb-8 bg-gradient-to-r from-navy to-seaBlue p-6 rounded-xl text-white shadow-lg">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{dealData.address || "New Deal"}</h2>
+              <h2 className="text-2xl font-bold">{dealData.address || "New Deal"}</h2>
+              <p className="text-white/80 text-sm mt-1">Start building your investment analysis</p>
             </div>
-            <div className="px-3 py-1.5 bg-navy text-white rounded-lg font-medium">
+            <div className="px-4 py-2 bg-white text-navy rounded-lg font-bold shadow-sm flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
               {getStrategyDisplayName(dealData.strategy)}
             </div>
           </div>
@@ -792,7 +819,8 @@ export default function DealAnalyzer() {
 
       {/* Timeline navigation */}
       {selectedStrategy && (
-        <div className="bg-gray-50 p-4 rounded-lg mb-8">
+        <div className="bg-white p-6 rounded-xl mb-8 border border-gray-100 shadow-md">
+          <h3 className="text-lg font-semibold text-navy mb-4">Deal Analysis Progress</h3>
           <Timeline 
             steps={steps} 
             currentStep={currentStep} 
@@ -802,39 +830,42 @@ export default function DealAnalyzer() {
       )}
       
       {/* Step content */}
-      <div className="my-8">
+      <div className="my-8 bg-white p-6 rounded-xl shadow-md border border-gray-100">
+        <h3 className="text-xl font-bold text-navy mb-6 border-b border-gray-100 pb-3">
+          {selectedStrategy ? steps[currentStep]?.label : "Choose Your Investment Strategy"}
+        </h3>
         {renderStepContent()}
       </div>
       
       {/* Navigation buttons */}
       {selectedStrategy && (
-        <div className="flex justify-between mt-8 border-t border-gray-200 pt-6">
+        <div className="flex justify-between mt-8 pt-6 bg-gray-50 p-6 rounded-xl shadow-sm">
           <button
             onClick={handlePrevious}
             disabled={currentStep === 0}
-            className={`py-2 px-6 rounded-md transition-colors font-medium shadow-sm flex items-center ${
+            className={`py-2.5 px-6 rounded-md transition-all font-medium shadow-sm flex items-center ${
               currentStep === 0 
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                : 'bg-navy text-white hover:bg-navy/90'
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                : 'btn btn-primary hover:translate-x-[-2px]'
             }`}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Previous
+            Previous Step
           </button>
           
           <button
             onClick={handleNext}
             disabled={currentStep === steps.length - 1}
-            className={`py-2 px-6 rounded-md transition-colors font-medium shadow-sm flex items-center ${
+            className={`py-2.5 px-6 rounded-md transition-all font-medium shadow-sm flex items-center ${
               currentStep === steps.length - 1 
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                : 'bg-grass text-white hover:bg-grass/90'
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                : 'btn btn-success hover:translate-x-[2px]'
             }`}
           >
-            Next
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            Next Step
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
