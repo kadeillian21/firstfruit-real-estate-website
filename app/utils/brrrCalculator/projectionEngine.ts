@@ -390,8 +390,11 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
         // Apply increase to all other expenses
         Object.keys(currentExpenses).forEach(key => {
           if (key !== 'mortgage') {
-            currentExpenses[key as keyof MonthlyExpenses] = 
-              currentExpenses[key as keyof MonthlyExpenses] * (1 + (config.annualExpenseAppreciationRate || 0.02));
+            const expenseKey = key as keyof MonthlyExpenses;
+            if (currentExpenses[expenseKey] !== undefined) {
+              currentExpenses[expenseKey] = 
+                currentExpenses[expenseKey] * (1 + (config.annualExpenseAppreciationRate || 0.02));
+            }
           }
         });
         

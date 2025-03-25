@@ -7,7 +7,6 @@ import {
   ExpenseChangeEvent,
   CapitalExpenseEvent
 } from '../../utils/brrrCalculator/projectionEngine';
-import { MonthlyExpenses } from '../../utils/brrrCalculator/cashFlowCalculator';
 import CurrencyInput from './ui/CurrencyInput';
 import PercentageInput from './ui/PercentageInput';
 import NumberInput from './ui/NumberInput';
@@ -27,28 +26,9 @@ export default function RentalDetails({
   operation,
   updateOperation,
   rentChangeEvents,
-  updateRentChangeEvents,
-  expenseChangeEvents,
-  updateExpenseChangeEvents,
   capitalExpenses,
   updateCapitalExpenses
-}: RentalDetailsProps) {
-  // Map PropertyOperation keys to MonthlyExpenses keys
-  const mapOperationToExpenseType = (key: keyof PropertyOperation): keyof MonthlyExpenses => {
-    const mapping: Record<keyof PropertyOperation, keyof MonthlyExpenses> = {
-      monthlyRent: 'mortgage', // Not actually used
-      otherMonthlyIncome: 'mortgage', // Not actually used
-      propertyTaxes: 'taxes',
-      insurance: 'insurance',
-      maintenance: 'maintenance',
-      propertyManagement: 'propertyManagement',
-      utilities: 'utilities',
-      vacancyRate: 'vacancyAllowance',
-      otherExpenses: 'otherExpenses'
-    };
-    return mapping[key];
-  };
-  
+}: RentalDetailsProps) {  
   // State for new capital expense component
   const [newExpense, setNewExpense] = useState<{
     component: string;
@@ -115,28 +95,6 @@ export default function RentalDetails({
     const updatedExpenses = [...capitalExpenses];
     updatedExpenses.splice(index, 1);
     updateCapitalExpenses(updatedExpenses);
-  };
-
-  // Get friendly name for expense type
-  const getExpenseTypeName = (type: string): string => {
-    const names: Record<string, string> = {
-      // MonthlyExpenses keys
-      taxes: 'Property Taxes',
-      insurance: 'Insurance',
-      maintenance: 'Maintenance',
-      propertyManagement: 'Property Management',
-      utilities: 'Utilities',
-      vacancyAllowance: 'Vacancy Rate',
-      otherExpenses: 'Other Expenses',
-      mortgage: 'Mortgage',
-      capitalReserves: 'Capital Reserves',
-      
-      // PropertyOperation keys
-      propertyTaxes: 'Property Taxes',
-      vacancyRate: 'Vacancy Rate'
-    };
-    
-    return names[type] || type;
   };
 
   // Calculate monthly totals
@@ -287,10 +245,10 @@ export default function RentalDetails({
       <div className="bg-blue-50 p-6 rounded-lg shadow-sm border border-blue-100 space-y-4">
         <h4 className="text-lg font-medium text-blue-900">Future Changes</h4>
         <p className="text-sm text-blue-800">
-          Once you've set your initial rental details, you can model future rent increases and expense changes in the Projection Settings screen.
+          Once you&apos;ve set your initial rental details, you can model future rent increases and expense changes in the Projection Settings screen.
         </p>
         <p className="text-sm text-blue-800">
-          In the Projection Settings, you'll be able to:
+          In the Projection Settings, you&apos;ll be able to:
         </p>
         <ul className="list-disc list-inside text-blue-800 space-y-1 ml-4">
           <li>Add percentage-based or exact value rent increases over time</li>
@@ -298,11 +256,11 @@ export default function RentalDetails({
           <li>Model property value changes for appreciation</li>
           <li>Set your desired projection timeframe</li>
         </ul>
-        {(rentChangeEvents.length > 0 || expenseChangeEvents.length > 0) && (
+        {rentChangeEvents.length > 0 && (
           <div className="mt-4 bg-white p-4 rounded-lg border border-blue-200">
             <h5 className="font-medium text-blue-900 mb-2">Existing Changes</h5>
             <p className="text-sm text-blue-800">
-              You have {rentChangeEvents.length} rent changes and {expenseChangeEvents.length} expense changes scheduled.
+              You have {rentChangeEvents.length} rent changes scheduled.
               These can be viewed and modified in the Projection Settings screen.
             </p>
           </div>

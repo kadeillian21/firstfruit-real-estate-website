@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PropertyAcquisition, HoldingCosts } from '../../utils/brrrCalculator/projectionEngine';
+import { PropertyAcquisition, HoldingCosts, CapitalExpenseEvent } from '../../utils/brrrCalculator/projectionEngine';
 import CurrencyInput from './ui/CurrencyInput';
 import NumberInput from './ui/NumberInput';
 
 interface RehabDetailsProps {
   acquisition: PropertyAcquisition;
   updateAcquisition: (acquisition: PropertyAcquisition) => void;
+  capitalExpenses: CapitalExpenseEvent[];
+  updateCapitalExpenses: (capitalExpenses: CapitalExpenseEvent[]) => void;
 }
 
 export default function RehabDetails({

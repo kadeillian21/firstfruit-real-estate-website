@@ -28,16 +28,10 @@ interface ProjectionSettingsProps {
 export default function ProjectionSettings({
   projectionMonths,
   updateProjectionMonths,
-  propertyValueChanges,
   updatePropertyValueChanges,
-  rentChangeEvents,
   updateRentChangeEvents,
-  expenseChangeEvents,
-  updateExpenseChangeEvents,
-  initialMonthlyRent,
   annualExpenseAppreciationRate = 0.02,
-  updateExpenseAppreciationRate,
-  refinanceEvents = []
+  updateExpenseAppreciationRate
 }: ProjectionSettingsProps) {
   // Set default appreciation rates
   const [propertyAppreciationRate, setPropertyAppreciationRate] = useState(0.03); // 3% default

@@ -432,10 +432,10 @@ export default function DealAnalyzer() {
               })
             }
             initialMonthlyRent={dealData.config.operation.monthlyRent || 0}
-            annualExpenseAppreciationRate={dealData.config.expenseAppreciationRate || 0.02}
+            annualExpenseAppreciationRate={dealData.config.annualExpenseAppreciationRate || 0.02}
             updateExpenseAppreciationRate={(rate) => 
               updateDealData({ 
-                config: { ...dealData.config, expenseAppreciationRate: rate } 
+                config: { ...dealData.config, annualExpenseAppreciationRate: rate } 
               })
             }
           />
@@ -460,6 +460,12 @@ export default function DealAnalyzer() {
               updateAcquisition={(acquisition) => 
                 updateDealData({ 
                   config: { ...dealData.config, acquisition } 
+                })
+              }
+              capitalExpenses={dealData.config.capitalExpenseEvents || []}
+              updateCapitalExpenses={(capitalExpenseEvents) => 
+                updateDealData({ 
+                  config: { ...dealData.config, capitalExpenseEvents } 
                 })
               }
             />

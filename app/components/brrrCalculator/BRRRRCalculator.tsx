@@ -310,6 +310,12 @@ export default function BRRRRCalculator() {
                 config: { ...dealData.config, expenseChangeEvents } 
               })
             }
+            capitalExpenses={dealData.config.capitalExpenseEvents || []}
+            updateCapitalExpenses={(capitalExpenseEvents) => 
+              updateDealData({ 
+                config: { ...dealData.config, capitalExpenseEvents } 
+              })
+            }
           />
         );
       case 'refinance':
