@@ -125,6 +125,8 @@ export interface MonthlySnapshot {
   totalCashFlow: number;
   equity: number;
   cashOnCash: number;
+  totalReturn: number; // The total return on investment up to this month
+  annualizedReturn: number; // Annualized ROI for this period
   eventDescription?: string;
 }
 
@@ -471,6 +473,16 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
     const annualizedCashFlow = cashFlow * 12;
     const cashOnCash = remainingInvestment > 0 ? annualizedCashFlow / remainingInvestment : 0;
     
+    // Calculate total return (equity + cash flow)
+    const currentValue = equity + totalCashFlow;
+    const totalReturn = (currentValue - totalInvestment) / totalInvestment;
+    
+    // Calculate annualized return rate
+    const yearsElapsed = currentMonth / 12;
+    const annualizedReturn = yearsElapsed > 0 
+      ? Math.pow(1 + totalReturn, 1 / yearsElapsed) - 1 
+      : 0;
+    
     // Add snapshot for this month
     snapshots.push({
       month: currentMonth,
@@ -484,6 +496,8 @@ export function generateProjection(config: ProjectionConfig): ProjectionResult {
       totalCashFlow,
       equity,
       cashOnCash,
+      totalReturn,
+      annualizedReturn,
       eventDescription: eventDescription || undefined
     });
     

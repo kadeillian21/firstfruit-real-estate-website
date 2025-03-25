@@ -6,6 +6,7 @@ import {
   generateProjection, 
   ProjectionResult 
 } from '../../utils/brrrCalculator/projectionEngine';
+import ROIComparisonChart from './ROIComparisonChart';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -63,6 +64,8 @@ export default function DealSummary({
   const handleCompareMonthChange = (month: number) => {
     setCompareMonth(month);
   };
+  
+  // Annualized returns are now calculated in the projection engine
 
   // Format percentage value
   const formatPercentage = (value: number): string => {
@@ -286,6 +289,15 @@ export default function DealSummary({
         </div>
       </div>
       
+      {/* ROI Comparison Chart */}
+      <div className="bg-gray-50 p-6 rounded-lg">
+        <ROIComparisonChart 
+          projectionMonths={projection.monthlySnapshots.length}
+          totalInvestment={projection.summary.totalInvestment}
+          monthlySnapshots={projection.monthlySnapshots}
+        />
+      </div>
+      
       {/* Monthly View */}
       <div className="bg-gray-50 p-6 rounded-lg space-y-4">
         <div className="flex justify-between items-center">
@@ -384,10 +396,17 @@ export default function DealSummary({
                 </span>
               </div>
               
-              <div className="flex justify-between">
+              <div className="flex justify-between border-b pb-2">
                 <span className="text-gray-600">Cash-on-Cash Return</span>
                 <span className="font-medium">
                   {formatPercentage(selectedSnapshot.cashOnCash)}
+                </span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-gray-600">Annualized Return</span>
+                <span className="font-medium text-navy">
+                  {formatPercentage(selectedSnapshot.annualizedReturn)}
                 </span>
               </div>
             </div>
@@ -478,7 +497,7 @@ export default function DealSummary({
                   </div>
                 </div>
                 
-                <div className="flex justify-between">
+                <div className="flex justify-between border-b pb-2">
                   <span className="text-gray-600">Cash-on-Cash Return</span>
                   <div className="flex items-center">
                     <span className="font-medium">
@@ -489,6 +508,23 @@ export default function DealSummary({
                         <>
                           {compareSnapshot.cashOnCash > selectedSnapshot.cashOnCash ? '+' : ''}
                           {formatPercentage(compareSnapshot.cashOnCash - selectedSnapshot.cashOnCash)}
+                        </>
+                      )}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Annualized Return</span>
+                  <div className="flex items-center">
+                    <span className="font-medium text-navy">
+                      {formatPercentage(compareSnapshot.annualizedReturn)}
+                    </span>
+                    <span className="ml-2 text-xs text-gray-500">
+                      {compareSnapshot.annualizedReturn - selectedSnapshot.annualizedReturn !== 0 && (
+                        <>
+                          {compareSnapshot.annualizedReturn > selectedSnapshot.annualizedReturn ? '+' : ''}
+                          {formatPercentage(compareSnapshot.annualizedReturn - selectedSnapshot.annualizedReturn)}
                         </>
                       )}
                     </span>
