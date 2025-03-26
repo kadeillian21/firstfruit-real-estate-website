@@ -35,11 +35,6 @@ export function Navbar() {
               Our Work
             </Link>
           </li>
-          <li className="relative group">
-            <Link href="/deal-analyzer" className="hover:opacity-80 transition-colors flex items-center">
-              Deal Analyzer
-            </Link>
-          </li>
           <li>
             <Link href="/contact" className="hover:opacity-80 transition-colors">
               Contact Us

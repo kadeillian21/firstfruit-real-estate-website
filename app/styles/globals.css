@@ -4,34 +4,6 @@
 
 /* Custom styles for Firstfruit Real Estate site */
 @layer components {
-  /* Label styles */
-  .brrrr-label {
-    @apply block text-sm font-medium text-gray-900 mb-1;
-  }
-  
-  /* Table styles */
-  .brrrr-table-header {
-    @apply text-gray-900 font-medium;
-  }
-  
-  /* Heading styles */
-  .brrrr-section-heading {
-    @apply font-semibold text-gray-900;
-  }
-  
-  /* Text styles */
-  .brrrr-description {
-    @apply text-gray-900;
-  }
-  
-  .brrrr-table-cell {
-    @apply text-gray-900 font-medium;
-  }
-  
-  /* Input styles */
-  .brrrr-input {
-    @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-navy focus:border-navy text-gray-900 font-medium placeholder:text-gray-600;
-  }
   
   /* Card styles */
   .card {
